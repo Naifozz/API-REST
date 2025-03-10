@@ -1,53 +1,66 @@
 import {
-    findLivreById,
-    getAllLivres,
-    createLivre,
-    updateLivre,
-    deleteLivre,
-} from "../repositories/livreRepository.js";
+    serviceGetLivreById,
+    serviceGetAll,
+    serviceCreateLivre,
+    serviceUpdateLivre,
+    serviceDeleteLivre,
+} from "../services/livreService.js";
 
 // Fonction pour récupérer un article par son ID
 export async function getLivreById(id) {
-    const livre = await findLivreById(id);
-    return livre;
+    const livre = await serviceGetLivreById(id);
+    if (livre === null) {
+        return {
+            success: false,
+            error: "Le livre n'existe pas",
+        };
+    } else {
+        return { success: true, data: livre };
+    }
 }
 
 // Fonction pour récupérer tous les articles
-export async function getAll() {
-    const livres = await getAllLivres();
-    return livres;
+export async function livreGetAll() {
+    const livres = await serviceGetAll();
+    if (livres === null) {
+        return {
+            success: false,
+            error: "Aucun livre dans la base de données",
+        };
+    } else {
+        return { success: true, data: livres };
+    }
 }
 
 // Fonction pour créer un article
-export async function createLivre(livreData) {
-    const validation = await livreValidation(livreData);
-    if (validation !== null) {
+export async function controllersCreateLivre(livreData) {
+    if (livreData === null) {
         return {
             success: false,
-            error: validation,
+            error: "Aucune données fournies",
         };
     } else {
-        const livre = await createLivre(livreData);
+        const livre = await serviceCreateLivre(livreData);
         return { success: true, data: livre };
     }
 }
 
 // Fonction pour mettre à jour un article
-export async function updateLivre(id, livreData) {
-    const validation = await livreValidation(livreData);
-    if (validation !== null) {
+export async function controllersUpdateLivre(id, livreData) {
+    const validation = await getLivreById(id);
+    if (validation === null) {
         return {
             success: false,
-            error: validation,
+            error: "Il n'existe pas de livre avec cet ID",
         };
     } else {
-        const livre = await updateLivre(id, livreData);
+        const livre = await serviceUpdateLivre(id, livreData);
         return { success: true, data: livre };
     }
 }
 
 // Fonction pour supprimer un article
-export async function deleteLivre(id) {
-    await deleteLivre(id);
-    return { success: true, message: "Livre deleted successfully" };
+export async function controllersDeleteLivre(id) {
+    const result = await serviceDeleteLivre(id);
+    return result;
 }

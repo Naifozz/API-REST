@@ -1,4 +1,4 @@
-import { openDb } from "../utils/db.js";
+import { openDb } from "../config/database.js";
 
 // Fonction pour trouver un article par son ID
 export async function findLivreById(id) {
@@ -17,16 +17,17 @@ export async function getAllLivres() {
 // Fonction pour supprimer un article
 export async function deleteLivre(id) {
     const db = await openDb();
-    await db.run("DELETE FROM LIVRE WHERE id = ?", [id]);
+    await db.run("DELETE FROM LIVRE WHERE ID_Livre = ?", [id]);
+    return { success: true, message: "Livre deleted successfully" };
 }
 
 // Fonction pour mettre à jour un article
 export async function createLivre(livreData) {
     const db = await openDb();
-    const { titre, ISBN, Annee_Publication, Nb_Pages, Editeur } = livreData;
+    const { Titre, ISBN, Annee_Publication, Nb_Pages, Editeur } = livreData;
     await db.run(
         "INSERT INTO LIVRE (Titre, ISBN, Annee_Publication, Nb_Pages, Editeur) VALUES (?, ?, ?, ?, ?)",
-        [titre, ISBN, Annee_Publication, Nb_Pages, Editeur]
+        [Titre, ISBN, Annee_Publication, Nb_Pages, Editeur]
     );
     const livre = await db.get("SELECT * FROM LIVRE WHERE Titre = ?", [Titre]);
     return livre;
@@ -35,10 +36,10 @@ export async function createLivre(livreData) {
 // Fonction pour mettre à jour un article
 export async function updateLivre(id, livreData) {
     const db = await openDb();
-    const { titre, ISBN, Annee_Publication, Nb_Pages, Editeur } = livreData;
+    const { Titre, ISBN, Annee_Publication, Nb_Pages, Editeur } = livreData;
     await db.run(
         "UPDATE LIVRE SET Titre = ?, ISBN = ?, Annee_Publication = ?, Nb_Pages = ?, Editeur = ? WHERE ID_Livre = ?",
-        [titre, ISBN, Annee_Publication, Nb_Pages, Editeur, id]
+        [Titre, ISBN, Annee_Publication, Nb_Pages, Editeur, id]
     );
     const livre = await db.get("SELECT * FROM LIVRE WHERE ID_Livre = ?", [id]);
     return livre;
