@@ -1,8 +1,10 @@
 import sqlite3 from "sqlite3";
 import { readFile } from "fs/promises";
+import { open } from "sqlite";
+import { logger } from "../utils/logger.js";
 
-const dbFilePath = "./bibliotheque.db";
-const sqlFilePath = "./init.sql";
+const dbFilePath = "./config/bibliotheque.db";
+const sqlFilePath = "./config/init.sql";
 
 async function initializeDatabase() {
     try {
@@ -15,15 +17,32 @@ async function initializeDatabase() {
         // Exécuter le script SQL
         db.exec(sql, (err) => {
             if (err) {
-                console.error("Erreur lors de l'exécution du script SQL:", err.message);
+                logger.error("Erreur lors de l'exécution du script SQL:", err.message);
             } else {
-                console.log("Base de données initialisée avec succès.");
+                logger.info("Base de données initialisée avec succès.");
                 // Insérer des données après l'initialisation
-                insertData(db);
+                // insertData(db); (seulement pour l'initialisation)
             }
         });
     } catch (error) {
-        console.error("Erreur lors de l'initialisation de la base de données:", error.message);
+        logger.error("Erreur lors de l'initialisation de la base de données:", error.message);
+    }
+}
+
+export async function openDb() {
+    try {
+        const db = await open({
+            filename: dbFilePath,
+            driver: sqlite3.Database,
+        });
+        // S'assurer que la table existe
+        await initializeDatabase();
+        logger.info("Base de données ouverte avec succès.");
+
+        return db;
+    } catch (error) {
+        logger.error("Failed to open database", error);
+        throw new Error("Failed to open database");
     }
 }
 
@@ -131,13 +150,13 @@ function insertData(db) {
         db.run(insertCategorieLivre, [3, 9]);
         db.run(insertCategorieLivre, [1, 10]);
 
-        console.log("Données insérées avec succès.");
+        logger.info("Données insérées avec succès.");
 
         db.close((err) => {
             if (err) {
-                console.error("Erreur lors de la fermeture de la base de données:", err.message);
+                logger.error("Erreur lors de la fermeture de la base de données:", err.message);
             } else {
-                console.log("Base de données fermée avec succès.");
+                logger.info("Base de données fermée avec succès.");
             }
         });
     });

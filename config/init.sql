@@ -1,4 +1,4 @@
-CREATE TABLE `LIVRE` (
+CREATE TABLE IF NOT EXISTS `LIVRE` (
   `ID_Livre` integer PRIMARY KEY AUTOINCREMENT,
   `Titre` varchar(255) NOT NULL,
   `ISBN` varchar(255) UNIQUE,
@@ -7,7 +7,7 @@ CREATE TABLE `LIVRE` (
   `Editeur` varchar(255)
 );
 
-CREATE TABLE `AUTEUR` (
+CREATE TABLE IF NOT EXISTS `AUTEUR` (
   `ID_Auteur` integer PRIMARY KEY AUTOINCREMENT,
   `Nom` varchar(255) NOT NULL,
   `Prenom` varchar(255),
@@ -15,12 +15,12 @@ CREATE TABLE `AUTEUR` (
   `ID_Pays` integer
 );
 
-CREATE TABLE `PAYS`(
+CREATE TABLE IF NOT EXISTS `PAYS`(
   `ID_Pays` integer PRIMARY KEY AUTOINCREMENT,
   `Nom` varchar(255)
 );
 
-CREATE TABLE `ECRITURE` (
+CREATE TABLE IF NOT EXISTS `ECRITURE` (
   `ID_Auteur` integer,
   `ID_Livre` integer,
   `Role` varchar(255),
@@ -29,7 +29,7 @@ CREATE TABLE `ECRITURE` (
   FOREIGN KEY (`ID_Livre`) REFERENCES `LIVRE` (`ID_Livre`)
 );
 
-CREATE TABLE `MEMBRE` (
+CREATE TABLE IF NOT EXISTS `MEMBRE` (
   `ID_Membre` integer PRIMARY KEY AUTOINCREMENT,
   `Nom` varchar(255) NOT NULL,
   `Prenom` varchar(255) NOT NULL,
@@ -38,7 +38,7 @@ CREATE TABLE `MEMBRE` (
   `Date_Inscription` timestamp DEFAULT (CURRENT_TIMESTAMP)
 );
 
-CREATE TABLE `EMPRUNT` (
+CREATE TABLE IF NOT EXISTS `EMPRUNT` (
   `ID_Emprunt` integer PRIMARY KEY AUTOINCREMENT,
   `ID_Membre` integer NOT NULL,
   `ID_Exemplaire` integer NOT NULL,
@@ -49,13 +49,13 @@ CREATE TABLE `EMPRUNT` (
   FOREIGN KEY (`ID_Exemplaire`) REFERENCES `EXEMPLAIRE` (`ID_Exemplaire`)
 );
 
-CREATE TABLE `CATEGORIE` (
+CREATE TABLE IF NOT EXISTS `CATEGORIE` (
   `ID_Categorie` integer PRIMARY KEY AUTOINCREMENT,
   `Nom` varchar(255) NOT NULL,
   `Description` varchar(255)
 );
 
-CREATE TABLE `CATEGORIE_LIVRE` (
+CREATE TABLE IF NOT EXISTS `CATEGORIE_LIVRE` (
   `ID_Categorie` integer,
   `ID_Livre` integer,
   PRIMARY KEY (`ID_Categorie`, `ID_Livre`),
@@ -63,7 +63,7 @@ CREATE TABLE `CATEGORIE_LIVRE` (
   FOREIGN KEY (`ID_Livre`) REFERENCES `LIVRE` (`ID_Livre`)
 );
 
-CREATE TABLE `EXEMPLAIRE` (
+CREATE TABLE IF NOT EXISTS `EXEMPLAIRE` (
   `ID_Exemplaire` integer PRIMARY KEY AUTOINCREMENT,
   `ID_Livre` integer NOT NULL,
   `Etat` integer NOT NULL,
@@ -81,6 +81,6 @@ BEGIN
     WHERE ID_Emprunt = NEW.ID_Emprunt;
 END;
 
-CREATE INDEX `LIVRE_index_0` ON `LIVRE` (`Titre`);
-CREATE INDEX `AUTEUR_index_0` ON `AUTEUR` (`Nom`);
-CREATE INDEX `MEMBRE_index_0` ON `MEMBRE` (`Email`);
+CREATE INDEX IF NOT EXISTS `LIVRE_index_0` ON `LIVRE` (`Titre`);
+CREATE INDEX IF NOT EXISTS `AUTEUR_index_0` ON `AUTEUR` (`Nom`);
+CREATE INDEX IF NOT EXISTS `MEMBRE_index_0` ON `MEMBRE` (`Email`);
