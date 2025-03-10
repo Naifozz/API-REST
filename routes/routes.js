@@ -6,7 +6,13 @@ import {
     controllersUpdateLivre,
     controllersDeleteLivre,
 } from "../controllers/livreController.js";
-import * as auteurController from "../controllers/auteurController.js";
+import {
+    getAuteurById,
+    getAllAuteurs,
+    createAuteur,
+    updateAuteur,
+    deleteAuteur,
+} from "../controllers/auteurController.js";
 import {
     getEmpruntById,
     empruntGetAll,
@@ -72,17 +78,51 @@ export const routes = async (req, res) => {
 
     // Routes pour les auteurs
     else if (url === "/api/auteurs" && method === "GET") {
+        const auteurs = await getAllAuteurs();
+
+        res.writeHead(201, { "Content-type": "application/json" });
+        res.end(JSON.stringify(auteurs.data));
     } else if (url === "/api/auteurs" && method === "POST") {
-        auteurController.createAuteur(req, res);
+        const auteurData = await parseRequestBody(req);
+
+        const result = await createAuteur(auteurData);
+
+        if (!result.success) {
+            res.writeHead(400, { "Content-Type": "application/json" });
+            res.end(JSON.stringify(result.error));
+        }
+
+        res.writeHead(201, { "Content-type": "application/json" });
+        res.end(JSON.stringify("Données envoyées", result.data));
     } else if (url.match(/^\/api\/auteurs\/([0-9]+)$/) && method === "GET") {
         const id = url.split("/")[3];
-        auteurController.getAuteurById(req, res, parseInt(id));
+        const auteur = await getAuteurById(id);
+
+        if (!auteur.success) {
+            res.writeHead(400, { "Content-type": "application/json" });
+            res.end(JSON.stringify(auteur.error));
+        }
+
+        res.writeHead(201, { "Content-type": "application/json" });
+        res.end(JSON.stringify(auteur.data));
     } else if (url.match(/^\/api\/auteurs\/([0-9]+)$/) && method === "PUT") {
         const id = url.split("/")[3];
-        auteurController.updateAuteur(req, res, parseInt(id));
+        const auteurData = await parseRequestBody(req);
+
+        const result = await updateAuteur(id, auteurData);
+
+        if (!result.success) {
+            res.writeHead(400, { "Content-Type": "application/json" });
+            res.end(JSON.stringify(result.error));
+        }
+
+        res.writeHead(201, { "Content-type": "application/json" });
+        res.end(JSON.stringify("Données envoyées", result.data));
     } else if (url.match(/^\/api\/auteurs\/([0-9]+)$/) && method === "DELETE") {
         const id = url.split("/")[3];
-        auteurController.deleteAuteur(req, res, parseInt(id));
+        const result = await deleteAuteur(id);
+
+        res.end(JSON.stringify(result.message));
 
         // Routes pour les emprunts
     } else if (url === "/api/emprunts" && method === "GET") {
