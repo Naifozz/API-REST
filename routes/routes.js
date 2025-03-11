@@ -157,6 +157,6 @@ export const routes = async (req, res) => {
     } catch (error) {
         logger.error(`Erreur lors du traitement de la requête: ${error.message}`);
         res.writeHead(500, { "Content-Type": "application/json" });
-        res.end(JSON.stringify("Erreur interne du serveur"));
+        res.end(JSON.stringify(error.message));
     }
 };
