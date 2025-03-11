@@ -10,68 +10,98 @@ import {
 } from "../services/livreService.js";
 import { livreValidation } from "../utils/validator.js";
 
-// Fonction pour récupérer un article par son ID
+// Fonction pour récupérer un livre par son ID
 export async function getLivreById(id) {
-    const livre = await serviceGetLivreById(id);
-    if (livre === null) {
-        return {
-            success: false,
-            error: "Le livre n'existe pas",
-        };
-    } else {
-        return { success: true, data: livre };
+    try {
+        const livre = await serviceGetLivreById(id);
+        if (livre === null) {
+            throw new Error("Le livre n'existe pas");
+        }
+        return livre;
+    } catch (error) {
+        throw new Error(`Erreur lors de la récupération du livre: ${error.message}`);
     }
 }
 
-// Fonction pour récupérer tous les articles
+// Fonction pour récupérer tous les livres
 export async function livreGetAll() {
-    const livres = await serviceGetAll();
-    if (livres === null) {
-        return {
-            success: false,
-            error: "Aucun livre dans la base de données",
-        };
-    } else {
-        return { success: true, data: livres };
+    try {
+        const livres = await serviceGetAll();
+        if (livres === null) {
+            throw new Error("Aucun livre dans la base de données");
+        }
+        return livres;
+    } catch (error) {
+        throw new Error(`Erreur lors de la récupération des livres: ${error.message}`);
     }
 }
 
-// Fonction pour créer un article
+// Fonction pour créer un livre
 export async function controllersCreateLivre(livreData) {
-    const livre = await serviceCreateLivre(livreData);
-    return { success: true, data: livre };
-}
-
-// Fonction pour mettre à jour un article
-export async function controllersUpdateLivre(id, livreData) {
-    const validation = await livreValidation(livreData);
-    if (validation !== null) {
-        return {
-            success: false,
-            error: validation,
-        };
-    } else {
-        const livre = await serviceUpdateLivre(id, livreData);
-        return { success: true, data: livre };
+    try {
+        const validation = await livreValidation(livreData);
+        if (validation !== null) {
+            throw new Error(validation);
+        }
+        const livre = await serviceCreateLivre(livreData);
+        return livre;
+    } catch (error) {
+        throw new Error(`Erreur lors de la création du livre: ${error.message}`);
     }
 }
 
-// Fonction pour supprimer un article
+// Fonction pour mettre à jour un livre
+export async function controllersUpdateLivre(id, livreData) {
+    try {
+        const validation = await livreValidation(livreData);
+        if (validation !== null) {
+            throw new Error(validation);
+        }
+        const livre = await serviceUpdateLivre(id, livreData);
+        return livre;
+    } catch (error) {
+        throw new Error(`Erreur lors de la mise à jour du livre: ${error.message}`);
+    }
+}
+
+// Fonction pour supprimer un livre
 export async function controllersDeleteLivre(id) {
-    const result = await serviceDeleteLivre(id);
-    return result;
+    try {
+        const result = await serviceDeleteLivre(id);
+        return result;
+    } catch (error) {
+        throw new Error(`Erreur lors de la suppression du livre: ${error.message}`);
+    }
 }
+
+// Fonction pour récupérer les livres par catégorie
 export async function controllersCategorieLivre(id) {
-    const result = await serviceCategorieLivre(id);
-    return result;
+    try {
+        const result = await serviceCategorieLivre(id);
+        return result;
+    } catch (error) {
+        throw new Error(
+            `Erreur lors de la récupération des livres par catégorie: ${error.message}`
+        );
+    }
 }
 
+// Fonction pour récupérer les livres par auteur
 export async function controllersLivreAuteur(id) {
-    const result = await serviceLivreAuteur(id);
-    return result;
+    try {
+        const result = await serviceLivreAuteur(id);
+        return result;
+    } catch (error) {
+        throw new Error(`Erreur lors de la récupération des livres par auteur: ${error.message}`);
+    }
 }
 
+// Fonction pour récupérer les livres par page
 export async function controllersLivrePage(offset, limit) {
-    const result = await serviceLivrePage(offset, limit);
-    return result;
+    try {
+        const result = await serviceLivrePage(offset, limit);
+        return result;
+    } catch (error) {
+        throw new Error(`Erreur lors de la récupération des livres par page: ${error.message}`);
+    }
 }

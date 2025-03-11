@@ -7,69 +7,70 @@ import {
 } from "../services/empruntService.js";
 import { empruntValidation } from "../utils/validator.js";
 
-// Fonction pour récupérer un article par son ID
+// Fonction pour récupérer un emprunt par son ID
 export async function getEmpruntById(id) {
-    const livre = await serviceGetEmpruntById(id);
-    if (livre === null) {
-        return {
-            success: false,
-            error: "Le livre n'existe pas",
-        };
-    } else {
-        return { success: true, data: livre };
+    try {
+        const emprunt = await serviceGetEmpruntById(id);
+        if (emprunt === null) {
+            throw new Error("L'emprunt n'existe pas");
+        }
+        return emprunt;
+    } catch (error) {
+        throw new Error(`Erreur lors de la récupération de l'emprunt: ${error.message}`);
     }
 }
 
-// Fonction pour récupérer tous les articles
+// Fonction pour récupérer tous les emprunts
 export async function empruntGetAll() {
-    const emprunt = await serviceGetAllEmprunt();
-    if (emprunt === null) {
-        return {
-            success: false,
-            error: "Aucun livre dans la base de données",
-        };
-    } else {
-        return { success: true, data: emprunt };
+    try {
+        const emprunts = await serviceGetAllEmprunt();
+        if (emprunts === null) {
+            throw new Error("Aucun emprunt dans la base de données");
+        }
+        return emprunts;
+    } catch (error) {
+        throw new Error(`Erreur lors de la récupération des emprunts: ${error.message}`);
     }
 }
 
-// Fonction pour créer un article
+// Fonction pour créer un emprunt
 export async function controllersCreateEmprunt(empruntData) {
-    const validation = await empruntValidation(empruntData);
-
-    if (validation !== null) {
-        return {
-            success: false,
-            error: validation,
-        };
-    } else {
+    try {
+        const validation = await empruntValidation(empruntData);
+        if (validation !== null) {
+            throw new Error(validation);
+        }
         const emprunt = await serviceCreateEmprunt(empruntData);
-        return { success: true, data: emprunt };
+        return emprunt;
+    } catch (error) {
+        throw new Error(`Erreur lors de la création de l'emprunt: ${error.message}`);
     }
 }
 
-// Fonction pour mettre à jour un article
+// Fonction pour mettre à jour un emprunt
 export async function controllersUpdateEmprunt(id, empruntData) {
-    const existe = await getEmpruntById(id);
-    const validation = await empruntValidation(empruntData);
-    if (existe === null) {
-        return {
-            success: false,
-            error: "Il n'existe pas de livre avec cet ID",
-        };
-    } else if (validation !== null) {
-        return {
-            success: false,
-            error: validation,
-        };
-    } else {
+    try {
+        const existe = await getEmpruntById(id);
+        if (existe === null) {
+            throw new Error("Il n'existe pas d'emprunt avec cet ID");
+        }
+        const validation = await empruntValidation(empruntData);
+        if (validation !== null) {
+            throw new Error(validation);
+        }
         const emprunt = await serviceUpdateEmprunt(id, empruntData);
-        return { success: true, data: emprunt };
+        return emprunt;
+    } catch (error) {
+        throw new Error(`Erreur lors de la mise à jour de l'emprunt: ${error.message}`);
     }
 }
 
-// Fonction pour supprimer un article
+// Fonction pour supprimer un emprunt
 export async function controllersDeleteEmprunt(id) {
-    const result = await serviceDeleteEmprunt(id);
-    return result;
+    try {
+        const result = await serviceDeleteEmprunt(id);
+        return result;
+    } catch (error) {
+        throw new Error(`Erreur lors de la suppression de l'emprunt: ${error.message}`);
+    }
 }

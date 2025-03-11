@@ -6,60 +6,52 @@ import {
     deleteAuteur,
 } from "../repositories/auteurRepository.js";
 
-// Fonction pour récupérer un article par son ID
+// Fonction pour récupérer un auteur par son ID
 export async function serviceGetAuteurById(id) {
-    const auteur = await findAuteurById(id);
-    return auteur;
-}
-
-// Fonction pour récupérer tous les articles
-export async function serviceGetAllAuteurs() {
-    const auteurs = await getAllAuteurs();
-    return auteurs;
-}
-
-// Fonction pour créer un article
-export async function serviceCreateAuteur(auteurData) {
-    const auteur = await createAuteur(auteurData);
-    if (!auteur.success) {
+    try {
+        const auteur = await findAuteurById(id);
         return auteur;
-    } else {
-        return { succes: true, data: auteur };
+    } catch (error) {
+        throw new Error(`Erreur lors de la récupération de l'auteur: ${error.message}`);
     }
-    // const validation = await livreValidation(livreData);
-    // if (validation !== null) {
-    //     return {
-    //         success: false,
-    //         error: validation,
-    //     };
-    // } else {
-    //     const livre = await createLivre(livreData);
-    //     return { success: true, data: livre };
-    // }
 }
 
-// Fonction pour mettre à jour un article
+// Fonction pour récupérer tous les auteurs
+export async function serviceGetAllAuteurs() {
+    try {
+        const auteurs = await getAllAuteurs();
+        return auteurs;
+    } catch (error) {
+        throw new Error(`Erreur lors de la récupération des auteurs: ${error.message}`);
+    }
+}
+
+// Fonction pour créer un auteur
+export async function serviceCreateAuteur(auteurData) {
+    try {
+        const auteur = await createAuteur(auteurData);
+        return auteur;
+    } catch (error) {
+        throw new Error(`Erreur lors de la création de l'auteur: ${error.message}`);
+    }
+}
+
+// Fonction pour mettre à jour un auteur
 export async function serviceUpdateAuteur(id, auteurData) {
-    const auteur = await updateAuteur(id, auteurData);
-    if (!auteur.success) {
-        return { success: "error" };
-    } else {
-        return { success: true, data: auteur };
+    try {
+        const auteur = await updateAuteur(id, auteurData);
+        return auteur;
+    } catch (error) {
+        throw new Error(`Erreur lors de la mise à jour de l'auteur: ${error.message}`);
     }
-    // const validation = await livreValidation(livreData);
-    // if (validation !== null) {
-    //     return {
-    //         success: false,
-    //         error: validation,
-    //     };
-    // } else {
-    //     const livre = await updateLivre(id, livreData);
-    //     return { success: true, data: livre };
-    // }
 }
 
-// Fonction pour supprimer un article
+// Fonction pour supprimer un auteur
 export async function serviceDeleteAuteur(id) {
-    const result = await deleteAuteur(id);
-    return result;
+    try {
+        const result = await deleteAuteur(id);
+        return result;
+    } catch (error) {
+        throw new Error(`Erreur lors de la suppression de l'auteur: ${error.message}`);
+    }
 }

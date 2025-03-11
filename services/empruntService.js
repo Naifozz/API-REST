@@ -6,60 +6,52 @@ import {
     deleteEmprunt,
 } from "../repositories/empruntRepository.js";
 
-// Fonction pour récupérer un article par son ID
+// Fonction pour récupérer un emprunt par son ID
 export async function serviceGetEmpruntById(id) {
-    const livre = await findEmpruntById(id);
-    return livre;
+    try {
+        const emprunt = await findEmpruntById(id);
+        return emprunt;
+    } catch (error) {
+        throw new Error(`Erreur lors de la récupération de l'emprunt: ${error.message}`);
+    }
 }
 
-// Fonction pour récupérer tous les articles
+// Fonction pour récupérer tous les emprunts
 export async function serviceGetAllEmprunt() {
-    const emprunts = await getAllEmprunts();
-    return emprunts;
+    try {
+        const emprunts = await getAllEmprunts();
+        return emprunts;
+    } catch (error) {
+        throw new Error(`Erreur lors de la récupération des emprunts: ${error.message}`);
+    }
 }
 
-// Fonction pour créer un article
+// Fonction pour créer un emprunt
 export async function serviceCreateEmprunt(empruntData) {
-    const emprunt = await createEmprunt(empruntData);
-    if (!emprunt.success) {
+    try {
+        const emprunt = await createEmprunt(empruntData);
         return emprunt;
-    } else {
-        return { succes: true, data: emprunt };
+    } catch (error) {
+        throw new Error(`Erreur lors de la création de l'emprunt: ${error.message}`);
     }
-    // const validation = await livreValidation(livreData);
-    // if (validation !== null) {
-    //     return {
-    //         success: false,
-    //         error: validation,
-    //     };
-    // } else {
-    //     const livre = await createLivre(livreData);
-    //     return { success: true, data: livre };
-    // }
 }
 
-// Fonction pour mettre à jour un article
+// Fonction pour mettre à jour un emprunt
 export async function serviceUpdateEmprunt(id, empruntData) {
-    const emprunt = await updateEmprunt(id, empruntData);
-    if (!emprunt.success) {
+    try {
+        const emprunt = await updateEmprunt(id, empruntData);
         return emprunt;
-    } else {
-        return { succes: true, data: emprunt };
+    } catch (error) {
+        throw new Error(`Erreur lors de la mise à jour de l'emprunt: ${error.message}`);
     }
-    // const validation = await livreValidation(livreData);
-    // if (validation !== null) {
-    //     return {
-    //         success: false,
-    //         error: validation,
-    //     };
-    // } else {
-    //     const livre = await updateLivre(id, livreData);
-    //     return { success: true, data: livre };
-    // }
 }
 
-// Fonction pour supprimer un article
+// Fonction pour supprimer un emprunt
 export async function serviceDeleteEmprunt(id) {
-    const result = await deleteEmprunt(id);
-    return result;
+    try {
+        const result = await deleteEmprunt(id);
+        return result;
+    } catch (error) {
+        throw new Error(`Erreur lors de la suppression de l'emprunt: ${error.message}`);
+    }
 }

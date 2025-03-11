@@ -1,78 +1,140 @@
 import { openDb } from "../config/database.js";
 
-// Fonction pour trouver un article par son ID
+// Fonction pour trouver un livre par son ID
 export async function findLivreById(id) {
-    const db = await openDb();
-    const livre = await db.get("SELECT * FROM LIVRE WHERE ID_Livre = ?", [id]);
-    return livre;
+    try {
+        const db = await openDb();
+        const livre = await db.get("SELECT * FROM LIVRE WHERE ID_Livre = ?", [id]);
+        if (!livre) {
+            throw new Error("Livre non trouvé");
+        }
+        return livre;
+    } catch (error) {
+        throw new Error(`Erreur lors de la récupération du livre: ${error.message}`);
+    }
 }
 
-// Fonction pour trouver tous les articles
+// Fonction pour trouver tous les livres
 export async function getAllLivres() {
-    const db = await openDb();
-    const livres = await db.all("SELECT * FROM LIVRE");
-    return livres;
+    try {
+        const db = await openDb();
+        const livres = await db.all("SELECT * FROM LIVRE");
+        if (!livres) {
+            throw new Error("Aucun livre trouvé");
+        }
+        return livres;
+    } catch (error) {
+        throw new Error(`Erreur lors de la récupération des livres: ${error.message}`);
+    }
 }
 
-// Fonction pour supprimer un article
+// Fonction pour supprimer un livre
 export async function deleteLivre(id) {
-    const db = await openDb();
-    await db.run("DELETE FROM LIVRE WHERE ID_Livre = ?", [id]);
-    return { success: true, message: "Livre deleted successfully" };
+    try {
+        const db = await openDb();
+        const result = await db.run("DELETE FROM LIVRE WHERE ID_Livre = ?", [id]);
+        if (result.changes === 0) {
+            throw new Error("Livre non trouvé ou déjà supprimé");
+        }
+        return { success: true, message: "Livre supprimé avec succès" };
+    } catch (error) {
+        throw new Error(`Erreur lors de la suppression du livre: ${error.message}`);
+    }
 }
 
-// Fonction pour mettre à jour un article
+// Fonction pour créer un livre
 export async function createLivre(livreData) {
-    const db = await openDb();
-    const { Titre, ISBN, Annee_Publication, Nb_Pages, Editeur } = livreData;
-    await db.run(
-        "INSERT INTO LIVRE (Titre, ISBN, Annee_Publication, Nb_Pages, Editeur) VALUES (?, ?, ?, ?, ?)",
-        [Titre, ISBN, Annee_Publication, Nb_Pages, Editeur]
-    );
-    const livre = await db.get("SELECT * FROM LIVRE WHERE Titre = ?", [Titre]);
-    return livre;
+    try {
+        const db = await openDb();
+        const { Titre, ISBN, Annee_Publication, Nb_Pages, Editeur } = livreData;
+        await db.run(
+            "INSERT INTO LIVRE (Titre, ISBN, Annee_Publication, Nb_Pages, Editeur) VALUES (?, ?, ?, ?, ?)",
+            [Titre, ISBN, Annee_Publication, Nb_Pages, Editeur]
+        );
+        const livre = await db.get("SELECT * FROM LIVRE WHERE Titre = ?", [Titre]);
+        if (!livre) {
+            throw new Error("Erreur lors de la création du livre");
+        }
+        return livre;
+    } catch (error) {
+        throw new Error(`Erreur lors de la création du livre: ${error.message}`);
+    }
 }
 
-// Fonction pour mettre à jour un article
+// Fonction pour mettre à jour un livre
 export async function updateLivre(id, livreData) {
-    const db = await openDb();
-    const { Titre, ISBN, Annee_Publication, Nb_Pages, Editeur } = livreData;
-    await db.run(
-        "UPDATE LIVRE SET Titre = ?, ISBN = ?, Annee_Publication = ?, Nb_Pages = ?, Editeur = ? WHERE ID_Livre = ?",
-        [Titre, ISBN, Annee_Publication, Nb_Pages, Editeur, id]
-    );
-    const livre = await db.get("SELECT * FROM LIVRE WHERE ID_Livre = ?", [id]);
-    return livre;
+    try {
+        const db = await openDb();
+        const { Titre, ISBN, Annee_Publication, Nb_Pages, Editeur } = livreData;
+        const result = await db.run(
+            "UPDATE LIVRE SET Titre = ?, ISBN = ?, Annee_Publication = ?, Nb_Pages = ?, Editeur = ? WHERE ID_Livre = ?",
+            [Titre, ISBN, Annee_Publication, Nb_Pages, Editeur, id]
+        );
+        if (result.changes === 0) {
+            throw new Error("Livre non trouvé ou aucune mise à jour effectuée");
+        }
+        const livre = await db.get("SELECT * FROM LIVRE WHERE ID_Livre = ?", [id]);
+        if (!livre) {
+            throw new Error("Erreur lors de la mise à jour du livre");
+        }
+        return livre;
+    } catch (error) {
+        throw new Error(`Erreur lors de la mise à jour du livre: ${error.message}`);
+    }
 }
 
-// Livre par categorie
-
+// Fonction pour récupérer les livres par catégorie
 export async function categorieLivre(id) {
-    const db = await openDb();
-    const livre = await db.all(
-        `SELECT C.Nom, L.Titre, L.ISBN, L.Annee_Publication, L.Nb_Pages, L.Editeur FROM LIVRE L 
-        JOIN CATEGORIE_LIVRE ON L.ID_Livre = CATEGORIE_LIVRE.ID_Livre 
-        JOIN CATEGORIE C ON C.ID_Categorie = CATEGORIE_LIVRE.ID_Categorie 
-        WHERE C.ID_Categorie = ?`,
-        [id]
-    );
-    return livre;
-}
-export async function livreAuteur(id) {
-    const db = await openDb();
-    const livres = await db.all(
-        `
-        SELECT A.Nom, A.Prenom, L.Titre, L.ISBN, L.Annee_Publication, L.Nb_Pages, L.Editeur FROM LIVRE L
-        JOIN ECRITURE E ON L.ID_Livre = E.ID_Livre
-        JOIN AUTEUR A ON A.ID_Auteur = E.ID_Auteur
-        WHERE A.ID_Auteur = ?`,
-        [id]
-    );
-    return livres;
+    try {
+        const db = await openDb();
+        const livre = await db.all(
+            `SELECT C.Nom, L.Titre, L.ISBN, L.Annee_Publication, L.Nb_Pages, L.Editeur FROM LIVRE L 
+            JOIN CATEGORIE_LIVRE ON L.ID_Livre = CATEGORIE_LIVRE.ID_Livre 
+            JOIN CATEGORIE C ON C.ID_Categorie = CATEGORIE_LIVRE.ID_Categorie 
+            WHERE C.ID_Categorie = ?`,
+            [id]
+        );
+        if (!livre) {
+            throw new Error("Aucun livre trouvé pour cette catégorie");
+        }
+        return livre;
+    } catch (error) {
+        throw new Error(
+            `Erreur lors de la récupération des livres par catégorie: ${error.message}`
+        );
+    }
 }
 
+// Fonction pour récupérer les livres par auteur
+export async function livreAuteur(id) {
+    try {
+        const db = await openDb();
+        const livres = await db.all(
+            `SELECT A.Nom, A.Prenom, L.Titre, L.ISBN, L.Annee_Publication, L.Nb_Pages, L.Editeur FROM LIVRE L
+            JOIN ECRITURE E ON L.ID_Livre = E.ID_Livre
+            JOIN AUTEUR A ON A.ID_Auteur = E.ID_Auteur
+            WHERE A.ID_Auteur = ?`,
+            [id]
+        );
+        if (!livres) {
+            throw new Error("Aucun livre trouvé pour cet auteur");
+        }
+        return livres;
+    } catch (error) {
+        throw new Error(`Erreur lors de la récupération des livres par auteur: ${error.message}`);
+    }
+}
+
+// Fonction pour récupérer les livres par page
 export async function livrePage(offset, limit) {
-    const db = await openDb();
-    const livres = await db.all(`SELECT * FROM LIVRE LIMIT ? OFFSET ?`, [limit, offset]);
-    return livres;
+    try {
+        const db = await openDb();
+        const livres = await db.all(`SELECT * FROM LIVRE LIMIT ? OFFSET ?`, [limit, offset]);
+        if (!livres) {
+            throw new Error("Aucun livre trouvé pour cette page");
+        }
+        return livres;
+    } catch (error) {
+        throw new Error(`Erreur lors de la récupération des livres par page: ${error.message}`);
+    }
 }
