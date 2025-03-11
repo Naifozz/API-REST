@@ -14,9 +14,7 @@ import { livreValidation } from "../utils/validator.js";
 export async function getLivreById(id) {
     try {
         const livre = await serviceGetLivreById(id);
-        if (livre === null) {
-            throw new Error("Le livre n'existe pas");
-        }
+
         return livre;
     } catch (error) {
         throw new Error(`Erreur lors de la récupération du livre: ${error.message}`);
@@ -27,9 +25,7 @@ export async function getLivreById(id) {
 export async function livreGetAll() {
     try {
         const livres = await serviceGetAll();
-        if (livres === null) {
-            throw new Error("Aucun livre dans la base de données");
-        }
+
         return livres;
     } catch (error) {
         throw new Error(`Erreur lors de la récupération des livres: ${error.message}`);
