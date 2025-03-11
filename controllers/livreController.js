@@ -6,6 +6,7 @@ import {
     serviceDeleteLivre,
     serviceCategorieLivre,
     serviceLivreAuteur,
+    serviceLivrePage,
 } from "../services/livreService.js";
 import { livreValidation } from "../utils/validator.js";
 
@@ -67,5 +68,10 @@ export async function controllersCategorieLivre(id) {
 
 export async function controllersLivreAuteur(id) {
     const result = await serviceLivreAuteur(id);
+    return result;
+}
+
+export async function controllersLivrePage(offset, limit) {
+    const result = await serviceLivrePage(offset, limit);
     return result;
 }

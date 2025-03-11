@@ -6,6 +6,7 @@ import {
     deleteLivre,
     categorieLivre,
     livreAuteur,
+    livrePage,
 } from "../repositories/livreRepository.js";
 
 // Fonction pour récupérer un article par son ID
@@ -73,5 +74,10 @@ export async function serviceCategorieLivre(id) {
 
 export async function serviceLivreAuteur(id) {
     const result = await livreAuteur(id);
+    return result;
+}
+
+export async function serviceLivrePage(page, limit) {
+    const result = await livrePage(page, limit);
     return result;
 }

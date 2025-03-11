@@ -70,3 +70,9 @@ export async function livreAuteur(id) {
     );
     return livres;
 }
+
+export async function livrePage(offset, limit) {
+    const db = await openDb();
+    const livres = await db.all(`SELECT * FROM LIVRE LIMIT ? OFFSET ?`, [limit, offset]);
+    return livres;
+}
