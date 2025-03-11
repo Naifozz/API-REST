@@ -54,8 +54,6 @@ export async function updateAuteur(id, auteurData) {
         const existe = await getAuteurById(id);
         if (validation !== null) {
             throw new Error(validation);
-        } else if (existe === null) {
-            throw new Error("Il n'existe pas d'auteur avec cet ID");
         }
         const auteur = await serviceUpdateAuteur(id, auteurData);
         return auteur;
