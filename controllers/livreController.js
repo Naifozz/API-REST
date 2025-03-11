@@ -5,6 +5,7 @@ import {
     serviceUpdateLivre,
     serviceDeleteLivre,
 } from "../services/livreService.js";
+import { livreValidation } from "../utils/validator.js";
 
 // Fonction pour récupérer un article par son ID
 export async function getLivreById(id) {
@@ -34,24 +35,17 @@ export async function livreGetAll() {
 
 // Fonction pour créer un article
 export async function controllersCreateLivre(livreData) {
-    if (livreData === null) {
-        return {
-            success: false,
-            error: "Aucune données fournies",
-        };
-    } else {
-        const livre = await serviceCreateLivre(livreData);
-        return { success: true, data: livre };
-    }
+    const livre = await serviceCreateLivre(livreData);
+    return { success: true, data: livre };
 }
 
 // Fonction pour mettre à jour un article
 export async function controllersUpdateLivre(id, livreData) {
-    const validation = await getLivreById(id);
-    if (validation === null) {
+    const validation = await livreValidation(livreData);
+    if (validation !== null) {
         return {
             success: false,
-            error: "Il n'existe pas de livre avec cet ID",
+            error: validation,
         };
     } else {
         const livre = await serviceUpdateLivre(id, livreData);
