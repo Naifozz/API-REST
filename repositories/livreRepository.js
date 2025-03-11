@@ -58,3 +58,15 @@ export async function categorieLivre(id) {
     );
     return livre;
 }
+export async function livreAuteur(id) {
+    const db = await openDb();
+    const livres = await db.all(
+        `
+        SELECT A.Nom, A.Prenom, L.Titre, L.ISBN, L.Annee_Publication, L.Nb_Pages, L.Editeur FROM LIVRE L
+        JOIN ECRITURE E ON L.ID_Livre = E.ID_Livre
+        JOIN AUTEUR A ON A.ID_Auteur = E.ID_Auteur
+        WHERE A.ID_Auteur = ?`,
+        [id]
+    );
+    return livres;
+}

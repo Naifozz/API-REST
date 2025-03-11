@@ -70,3 +70,8 @@ export async function serviceCategorieLivre(id) {
     const result = await categorieLivre(id);
     return result;
 }
+
+export async function serviceLivreAuteur(id) {
+    const result = await livreAuteur(id);
+    return result;
+}
