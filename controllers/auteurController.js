@@ -5,7 +5,7 @@ import {
     serviceUpdateAuteur,
     serviceDeleteAuteur,
 } from "../services/auteurService.js";
-
+import { auteurValidation } from "../utils/validator.js";
 // Fonction pour récupérer un article par son ID
 export async function getAuteurById(id) {
     const auteur = await serviceGetAuteurById(id);
@@ -34,10 +34,11 @@ export async function getAllAuteurs() {
 
 // Fonction pour créer un article
 export async function createAuteur(auteurData) {
-    if (auteurData === null) {
+    const validation = await auteurValidation(auteurData);
+    if (validation !== null) {
         return {
             success: false,
-            error: "Aucune données fournies",
+            error: validation,
         };
     } else {
         const auteur = await serviceCreateAuteur(auteurData);
@@ -47,8 +48,14 @@ export async function createAuteur(auteurData) {
 
 // Fonction pour mettre à jour un article
 export async function updateAuteur(id, auteurData) {
-    const validation = await getAuteurById(id);
-    if (validation === null) {
+    const validation = await auteurValidation(auteurData);
+    const existe = await getAuteurById(id);
+    if (validation !== null) {
+        return {
+            success: false,
+            error: validation,
+        };
+    } else if (existe === null) {
         return {
             success: false,
             error: "Il n'existe pas de livre avec cet ID",
