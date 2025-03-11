@@ -13,9 +13,12 @@ import {
 export async function serviceGetLivreById(id) {
     try {
         const livre = await findLivreById(id);
+        if (!livre) {
+            throw new Error("Livre non trouvé");
+        }
         return livre;
     } catch (error) {
-        throw new Error(`Erreur lors de la récupération du livre: ${error.message}`);
+        throw new Error(error.message);
     }
 }
 
@@ -23,9 +26,12 @@ export async function serviceGetLivreById(id) {
 export async function serviceGetAll() {
     try {
         const livres = await getAllLivres();
+        if (livres.length === 0) {
+            throw new Error("Aucun livre trouvé");
+        }
         return livres;
     } catch (error) {
-        throw new Error(`Erreur lors de la récupération des livres: ${error.message}`);
+        throw new Error(error.message);
     }
 }
 
@@ -35,7 +41,7 @@ export async function serviceCreateLivre(livreData) {
         const livre = await createLivre(livreData);
         return livre;
     } catch (error) {
-        throw new Error(`Erreur lors de la création du livre: ${error.message}`);
+        throw new Error(error.message);
     }
 }
 
@@ -43,9 +49,13 @@ export async function serviceCreateLivre(livreData) {
 export async function serviceUpdateLivre(id, livreData) {
     try {
         const livre = await updateLivre(id, livreData);
+        const existe = await findLivreById(id);
+        if (!existe) {
+            throw new Error("Livre non trouvé");
+        }
         return livre;
     } catch (error) {
-        throw new Error(`Erreur lors de la mise à jour du livre: ${error.message}`);
+        throw new Error(error.message);
     }
 }
 
@@ -53,9 +63,13 @@ export async function serviceUpdateLivre(id, livreData) {
 export async function serviceDeleteLivre(id) {
     try {
         const result = await deleteLivre(id);
+        const existe = await findLivreById(id);
+        if (!existe) {
+            throw new Error("Livre non trouvé");
+        }
         return result;
     } catch (error) {
-        throw new Error(`Erreur lors de la suppression du livre: ${error.message}`);
+        throw new Error(error.message);
     }
 }
 
@@ -63,21 +77,31 @@ export async function serviceDeleteLivre(id) {
 export async function serviceCategorieLivre(id) {
     try {
         const result = await categorieLivre(id);
+        if (result.length === 0) {
+            throw new Error("Catégorie non trouvée");
+        }
+
         return result;
     } catch (error) {
-        throw new Error(
-            `Erreur lors de la récupération des livres par catégorie: ${error.message}`
-        );
+        throw new Error(error.message);
     }
 }
 
 // Fonction pour récupérer les livres par auteur
 export async function serviceLivreAuteur(id) {
     try {
-        const result = await livreAuteur(id);
-        return result;
+        const existe = await findAuteurById(id);
+        if (!existe) {
+            throw new Error("Auteur non trouvé");
+        }
+        try {
+            const result = await livreAuteur(id);
+            return result;
+        } catch (error) {
+            throw new Error(error.message);
+        }
     } catch (error) {
-        throw new Error(`Erreur lors de la récupération des livres par auteur: ${error.message}`);
+        throw new Error(error.message);
     }
 }
 
@@ -87,6 +111,6 @@ export async function serviceLivrePage(offset, limit) {
         const result = await livrePage(offset, limit);
         return result;
     } catch (error) {
-        throw new Error(`Erreur lors de la récupération des livres par page: ${error.message}`);
+        throw new Error(error.message);
     }
 }
