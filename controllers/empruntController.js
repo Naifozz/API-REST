@@ -11,9 +11,6 @@ import { empruntValidation } from "../utils/validator.js";
 export async function getEmpruntById(id) {
     try {
         const emprunt = await serviceGetEmpruntById(id);
-        if (emprunt === null) {
-            throw new Error("L'emprunt n'existe pas");
-        }
         return emprunt;
     } catch (error) {
         throw new Error(`Erreur lors de la récupération de l'emprunt: ${error.message}`);
@@ -24,9 +21,6 @@ export async function getEmpruntById(id) {
 export async function empruntGetAll() {
     try {
         const emprunts = await serviceGetAllEmprunt();
-        if (emprunts === null) {
-            throw new Error("Aucun emprunt dans la base de données");
-        }
         return emprunts;
     } catch (error) {
         throw new Error(`Erreur lors de la récupération des emprunts: ${error.message}`);
@@ -50,10 +44,6 @@ export async function controllersCreateEmprunt(empruntData) {
 // Fonction pour mettre à jour un emprunt
 export async function controllersUpdateEmprunt(id, empruntData) {
     try {
-        const existe = await getEmpruntById(id);
-        if (existe === null) {
-            throw new Error("Il n'existe pas d'emprunt avec cet ID");
-        }
         const validation = await empruntValidation(empruntData);
         if (validation !== null) {
             throw new Error(validation);
