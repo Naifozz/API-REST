@@ -5,6 +5,7 @@ import {
     serviceUpdateEmprunt,
     serviceDeleteEmprunt,
 } from "../services/empruntService.js";
+import { empruntValidation } from "../utils/validator.js";
 
 // Fonction pour récupérer un article par son ID
 export async function getEmpruntById(id) {
@@ -34,10 +35,12 @@ export async function empruntGetAll() {
 
 // Fonction pour créer un article
 export async function controllersCreateEmprunt(empruntData) {
-    if (empruntData === null) {
+    const validation = await empruntValidation(empruntData);
+
+    if (validation !== null) {
         return {
             success: false,
-            error: "Aucune données fournies",
+            error: validation,
         };
     } else {
         const emprunt = await serviceCreateEmprunt(empruntData);
@@ -47,11 +50,17 @@ export async function controllersCreateEmprunt(empruntData) {
 
 // Fonction pour mettre à jour un article
 export async function controllersUpdateEmprunt(id, empruntData) {
-    const validation = await getEmpruntById(id);
-    if (validation === null) {
+    const existe = await getEmpruntById(id);
+    const validation = await empruntValidation(empruntData);
+    if (existe === null) {
         return {
             success: false,
             error: "Il n'existe pas de livre avec cet ID",
+        };
+    } else if (validation !== null) {
+        return {
+            success: false,
+            error: validation,
         };
     } else {
         const emprunt = await serviceUpdateEmprunt(id, empruntData);
