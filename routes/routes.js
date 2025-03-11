@@ -6,6 +6,7 @@ import {
     controllersDeleteLivre,
     controllersCategorieLivre,
     controllersLivreAuteur,
+    controllersLivrePage,
 } from "../controllers/livreController.js";
 import {
     getAuteurById,
@@ -66,6 +67,15 @@ export const routes = async (req, res) => {
         const auteur = url.split("=")[1];
 
         const result = await controllersLivreAuteur(auteur);
+
+        res.writeHead(200, { "Content-type": "application/json" });
+        res.end(JSON.stringify({ result }));
+    } else if (url.match(/^\/api\/livres\?page=\d+&limit=\d+$/) && method === "GET") {
+        const params = url.split("?")[1].split("&");
+        const page = params[0].split("=")[1];
+        const limit = params[1].split("=")[1];
+        const offset = (page - 1) * limit;
+        const result = await controllersLivrePage(offset, limit);
 
         res.writeHead(200, { "Content-type": "application/json" });
         res.end(JSON.stringify({ result }));
