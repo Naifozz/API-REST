@@ -4,6 +4,8 @@ import {
     createLivre,
     updateLivre,
     deleteLivre,
+    categorieLivre,
+    livreAuteur,
 } from "../repositories/livreRepository.js";
 
 // Fonction pour récupérer un article par son ID
@@ -24,7 +26,7 @@ export async function serviceCreateLivre(livreData) {
     if (!livre.success) {
         return livre;
     } else {
-        return { succes: true, data: livre };
+        return { success: true, data: livre };
     }
     // const validation = await livreValidation(livreData);
     // if (validation !== null) {
@@ -44,7 +46,7 @@ export async function serviceUpdateLivre(id, livreData) {
     if (!livre.success) {
         return livre;
     } else {
-        return { succes: true, data: livre };
+        return { success: true, data: livre };
     }
     // const validation = await livreValidation(livreData);
     // if (validation !== null) {
@@ -61,5 +63,10 @@ export async function serviceUpdateLivre(id, livreData) {
 // Fonction pour supprimer un article
 export async function serviceDeleteLivre(id) {
     const result = await deleteLivre(id);
+    return result;
+}
+
+export async function serviceCategorieLivre(id) {
+    const result = await categorieLivre(id);
     return result;
 }

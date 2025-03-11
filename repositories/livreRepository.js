@@ -44,3 +44,17 @@ export async function updateLivre(id, livreData) {
     const livre = await db.get("SELECT * FROM LIVRE WHERE ID_Livre = ?", [id]);
     return livre;
 }
+
+// Livre par categorie
+
+export async function categorieLivre(id) {
+    const db = await openDb();
+    const livre = await db.all(
+        `SELECT C.Nom, L.Titre, L.ISBN, L.Annee_Publication, L.Nb_Pages, L.Editeur FROM LIVRE L 
+        JOIN CATEGORIE_LIVRE ON L.ID_Livre = CATEGORIE_LIVRE.ID_Livre 
+        JOIN CATEGORIE C ON C.ID_Categorie = CATEGORIE_LIVRE.ID_Categorie 
+        WHERE C.ID_Categorie = ?`,
+        [id]
+    );
+    return livre;
+}

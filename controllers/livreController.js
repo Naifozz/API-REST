@@ -4,6 +4,7 @@ import {
     serviceCreateLivre,
     serviceUpdateLivre,
     serviceDeleteLivre,
+    serviceCategorieLivre,
 } from "../services/livreService.js";
 import { livreValidation } from "../utils/validator.js";
 
@@ -56,5 +57,9 @@ export async function controllersUpdateLivre(id, livreData) {
 // Fonction pour supprimer un article
 export async function controllersDeleteLivre(id) {
     const result = await serviceDeleteLivre(id);
+    return result;
+}
+export async function controllersCategorieLivre(id) {
+    const result = await serviceCategorieLivre(id);
     return result;
 }
