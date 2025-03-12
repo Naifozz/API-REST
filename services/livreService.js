@@ -8,6 +8,7 @@ import {
     livreAuteur,
     livrePage,
 } from "../repositories/livreRepository.js";
+import { findAuteurById } from "../repositories/auteurRepository.js";
 
 // Fonction pour récupérer un livre par son ID
 export async function serviceGetLivreById(id) {

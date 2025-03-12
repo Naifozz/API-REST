@@ -18,26 +18,32 @@ export async function getEmpruntById(id) {
 }
 
 // Fonction pour récupérer tous les emprunts
-export async function empruntGetAll() {
+export async function empruntGetAll(res) {
     try {
         const emprunts = await serviceGetAllEmprunt();
-        return emprunts;
+        res.writeHead(200, { "Content-type": "application/json" });
+        res.end(JSON.stringify({ success: true, data: emprunts }));
     } catch (error) {
-        throw new Error(`Erreur lors de la récupération des emprunts: ${error.message}`);
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify("Erreur Serveur"));
     }
 }
 
 // Fonction pour créer un emprunt
-export async function controllersCreateEmprunt(empruntData) {
+export async function controllersCreateEmprunt(req, res) {
+    const empruntData = await parseRequestBody(req);
     try {
         const validation = await empruntValidation(empruntData);
         if (validation !== null) {
-            throw new Error(validation);
+            res.writeHead(400, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ success: false, error: validation }));
         }
         const emprunt = await serviceCreateEmprunt(empruntData);
-        return emprunt;
+        res.writeHead(201, { "Content-type": "application/json" });
+        res.end(JSON.stringify({ success: true, data: emprunt }));
     } catch (error) {
-        throw new Error(`Erreur lors de la création de l'emprunt: ${error.message}`);
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: false, error: error.message }));
     }
 }
 

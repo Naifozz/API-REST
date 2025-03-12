@@ -12,11 +12,14 @@ export async function getAuteurById(id) {
     try {
         const auteur = await serviceGetAuteurById(id);
         if (auteur === null) {
-            throw new Error("L'auteur n'existe pas");
+            res.writeHead(404, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ success: false, error: "Auteur non trouvé" }));
         }
-        return auteur;
+        res.writeHead(200, { "Content-type": "application/json" });
+        res.end(JSON.stringify({ success: true, data: auteur }));
     } catch (error) {
-        throw new Error(`Erreur lors de la récupération de l'auteur: ${error.message}`);
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: false, error: error.message }));
     }
 }
 
@@ -24,50 +27,71 @@ export async function getAuteurById(id) {
 export async function getAllAuteurs() {
     try {
         const auteurs = await serviceGetAllAuteurs();
+
         if (auteurs === null) {
-            throw new Error("Aucun auteur dans la base de données");
+            res.writeHead(404, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ success: false, error: "Aucun auteur trouvé" }));
         }
-        return auteurs;
+
+        res.writeHead(200, { "Content-type": "application/json" });
+        res.end(JSON.stringify({ success: true, data: auteurs }));
     } catch (error) {
-        throw new Error(`Erreur lors de la récupération des auteurs: ${error.message}`);
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: false, error: "Erreur Serveur" }));
     }
 }
 
 // Fonction pour créer un auteur
-export async function createAuteur(auteurData) {
+export async function createAuteur(req, res) {
+    const auteurData = await parseRequestBody(req);
     try {
         const validation = await auteurValidation(auteurData);
         if (validation !== null) {
-            throw new Error(validation);
+            res.writeHead(400, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ success: false, error: validation }));
         }
         const auteur = await serviceCreateAuteur(auteurData);
-        return auteur;
+        res.writeHead(200, { "Content-type": "application/json" });
+        res.end(JSON.stringify(auteur));
     } catch (error) {
-        throw new Error(`Erreur lors de la création de l'auteur: ${error.message}`);
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: false, error: error.message }));
     }
 }
 
 // Fonction pour mettre à jour un auteur
-export async function updateAuteur(id, auteurData) {
+export async function updateAuteur(req, res, id) {
+    const auteurData = await parseRequestBody(req);
     try {
         const validation = await auteurValidation(auteurData);
-        const existe = await getAuteurById(id);
         if (validation !== null) {
-            throw new Error(validation);
+            res.writeHead(400, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ success: false, error: validation }));
+        }
+        const existe = await getAuteurById(id);
+        if (!existe) {
+            res.writeHead(404, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ success: false, error: "Auteur non trouvé" }));
         }
         const auteur = await serviceUpdateAuteur(id, auteurData);
-        return auteur;
+
+        res.writeHead(200, { "Content-type": "application/json" });
+        res.end(JSON.stringify({ success: true, data: auteur }));
     } catch (error) {
-        throw new Error(`Erreur lors de la mise à jour de l'auteur: ${error.message}`);
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: false, error: error.message }));
     }
 }
 
 // Fonction pour supprimer un auteur
-export async function deleteAuteur(id) {
+export async function deleteAuteur(res, id) {
     try {
         const result = await serviceDeleteAuteur(id);
-        return result;
+
+        res.writeHead(200, { "Content-type": "application/json" });
+        res.end(JSON.stringify({ success: true, data: result }));
     } catch (error) {
-        throw new Error(`Erreur lors de la suppression de l'auteur: ${error.message}`);
+        res.writeHead(404, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: false, error: error.message }));
     }
 }

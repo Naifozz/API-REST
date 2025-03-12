@@ -9,54 +9,69 @@ import {
     serviceLivrePage,
 } from "../services/livreService.js";
 import { livreValidation } from "../utils/validator.js";
+import { parseRequestBody } from "../utils/httpHelper.js";
 
 // Fonction pour récupérer un livre par son ID
-export async function getLivreById(id) {
+export async function getLivreById(req, res, id) {
     try {
         const livre = await serviceGetLivreById(id);
 
-        return livre;
+        res.writeHead(200, { "Content-type": "application/json" });
+        res.end(JSON.stringify({ success: true, data: livre }));
     } catch (error) {
-        throw new Error(`Erreur lors de la récupération du livre: ${error.message}`);
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: false, error: "Erreur Serveur" }));
     }
 }
 
 // Fonction pour récupérer tous les livres
-export async function livreGetAll() {
+export async function livreGetAll(req, res) {
     try {
         const livres = await serviceGetAll();
 
-        return livres;
+        res.writeHead(200, { "Content-type": "application/json" });
+        res.end(JSON.stringify({ success: true, data: livres }));
     } catch (error) {
-        throw new Error(`Erreur lors de la récupération des livres: ${error.message}`);
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: false, error: "Erreur Serveur" }));
     }
 }
 
 // Fonction pour créer un livre
-export async function controllersCreateLivre(livreData) {
+export async function controllersCreateLivre(res, req) {
     try {
+        const livreData = await parseRequestBody(req);
         const validation = await livreValidation(livreData);
         if (validation !== null) {
             throw new Error(validation);
         }
         const livre = await serviceCreateLivre(livreData);
-        return livre;
+
+        res.writeHead(200, { "Content-type": "application/json" });
+        res.end(JSON.stringify({ success: true, data: livre }));
     } catch (error) {
-        throw new Error(`Erreur lors de la création du livre: ${error.message}`);
+        const statusCode = error.message.includes("requis") ? 400 : 500;
+        res.writeHead(statusCode, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: false, error: error.message }));
     }
 }
 
 // Fonction pour mettre à jour un livre
-export async function controllersUpdateLivre(id, livreData) {
+export async function controllersUpdateLivre(req, res, id) {
+    const livreData = await parseRequestBody(req);
     try {
         const validation = await livreValidation(livreData);
         if (validation !== null) {
-            throw new Error(validation);
+            res.writeHead(500, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ success: false, error: validation }));
         }
         const livre = await serviceUpdateLivre(id, livreData);
-        return livre;
+
+        res.writeHead(200, { "Content-type": "application/json" });
+        res.end(JSON.stringify({ success: true, data: livre }));
     } catch (error) {
-        throw new Error(`Erreur lors de la mise à jour du livre: ${error.message}`);
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: false, error: error.message }));
     }
 }
 
@@ -64,31 +79,38 @@ export async function controllersUpdateLivre(id, livreData) {
 export async function controllersDeleteLivre(id) {
     try {
         const result = await serviceDeleteLivre(id);
-        return result;
+
+        res.writeHead(200, { "Content-type": "application/json" });
+        res.end(JSON.stringify({ success: true, data: result }));
     } catch (error) {
-        throw new Error(`Erreur lors de la suppression du livre: ${error.message}`);
+        res.writeHead(404, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: false, error: error.message }));
     }
 }
 
 // Fonction pour récupérer les livres par catégorie
-export async function controllersCategorieLivre(id) {
+export async function controllersCategorieLivre(res, id) {
     try {
         const result = await serviceCategorieLivre(id);
-        return result;
+
+        res.writeHead(200, { "Content-type": "application/json" });
+        res.end(JSON.stringify({ success: true, data: result }));
     } catch (error) {
-        throw new Error(
-            `Erreur lors de la récupération des livres par catégorie: ${error.message}`
-        );
+        res.writeHead(404, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: false, error: error.message }));
     }
 }
 
 // Fonction pour récupérer les livres par auteur
-export async function controllersLivreAuteur(id) {
+export async function controllersLivreAuteur(res, id) {
     try {
         const result = await serviceLivreAuteur(id);
-        return result;
+
+        res.writeHead(200, { "Content-type": "application/json" });
+        res.end(JSON.stringify({ success: true, data: result }));
     } catch (error) {
-        throw new Error(`Erreur lors de la récupération des livres par auteur: ${error.message}`);
+        res.writeHead(404, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: false, error: error.message }));
     }
 }
 
@@ -96,8 +118,11 @@ export async function controllersLivreAuteur(id) {
 export async function controllersLivrePage(offset, limit) {
     try {
         const result = await serviceLivrePage(offset, limit);
-        return result;
+
+        res.writeHead(200, { "Content-type": "application/json" });
+        res.end(JSON.stringify({ success: true, data: result }));
     } catch (error) {
-        throw new Error(`Erreur lors de la récupération des livres par page: ${error.message}`);
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: false, error: error.message }));
     }
 }
