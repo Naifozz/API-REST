@@ -1,4 +1,5 @@
 import { openDb } from "../config/database.js";
+import { dbToLivre, livreToDb } from "../models/livreModels.js";
 
 // Fonction pour trouver un livre par son ID
 export async function findLivreById(id) {
@@ -8,7 +9,7 @@ export async function findLivreById(id) {
         if (!livre) {
             throw new Error("Livre non trouvé");
         }
-        return livre;
+        return dbToLivre(livre);
     } catch (error) {
         throw new Error(`Erreur lors de la récupération du livre: ${error.message}`);
     }
@@ -46,16 +47,22 @@ export async function deleteLivre(id) {
 export async function createLivre(livreData) {
     try {
         const db = await openDb();
-        const { Titre, ISBN, Annee_Publication, Nb_Pages, Editeur } = livreData;
+        const dbLivre = livreToDb(livreData);
         await db.run(
             "INSERT INTO LIVRE (Titre, ISBN, Annee_Publication, Nb_Pages, Editeur) VALUES (?, ?, ?, ?, ?)",
-            [Titre, ISBN, Annee_Publication, Nb_Pages, Editeur]
+            [
+                dbLivre.Titre,
+                dbLivre.ISBN,
+                dbLivre.Annee_Publication,
+                dbLivre.Nb_Pages,
+                dbLivre.Editeur,
+            ]
         );
-        const livre = await db.get("SELECT * FROM LIVRE WHERE Titre = ?", [Titre]);
-        if (!livre) {
+        const newDbLivre = await db.get("SELECT * FROM LIVRE WHERE Titre = ?", [dbLivre.Titre]);
+        if (!newDbLivre) {
             throw new Error("Erreur lors de la création du livre");
         }
-        return livre;
+        return dbToLivre(newDbLivre);
     } catch (error) {
         throw new Error(`Erreur lors de la création du livre: ${error.message}`);
     }
