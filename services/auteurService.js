@@ -11,6 +11,10 @@ import { auteurToDb, validerAuteur } from "../models/auteurModels.js";
 export async function serviceGetAuteurById(id) {
     try {
         const auteur = await findAuteurById(id);
+        if (auteur === null) {
+            res.writeHead(404, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ success: false, error: "Auteur non trouvé" }));
+        }
         return auteur;
     } catch (error) {
         throw new Error(`Erreur lors de la récupération de l'auteur: ${error.message}`);
@@ -21,6 +25,10 @@ export async function serviceGetAuteurById(id) {
 export async function serviceGetAllAuteurs() {
     try {
         const auteurs = await getAllAuteurs();
+        if (auteurs === null) {
+            res.writeHead(404, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ success: false, error: "Aucun auteur trouvé" }));
+        }
         return auteurs;
     } catch (error) {
         throw new Error(`Erreur lors de la récupération des auteurs: ${error.message}`);

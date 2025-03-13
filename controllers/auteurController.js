@@ -12,10 +12,7 @@ import { parseRequestBody } from "../utils/httpHelper.js";
 export async function getAuteurById(req, res, id) {
     try {
         const auteur = await serviceGetAuteurById(id);
-        if (auteur === null) {
-            res.writeHead(404, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ success: false, error: "Auteur non trouvé" }));
-        }
+
         res.writeHead(200, { "Content-type": "application/json" });
         res.end(JSON.stringify({ success: true, data: auteur }));
     } catch (error) {
@@ -27,13 +24,6 @@ export async function getAuteurById(req, res, id) {
 // Fonction pour récupérer tous les auteurs
 export async function getAllAuteurs(req, res, id) {
     try {
-        const auteurs = await serviceGetAllAuteurs();
-
-        if (auteurs === null) {
-            res.writeHead(404, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ success: false, error: "Aucun auteur trouvé" }));
-        }
-
         res.writeHead(200, { "Content-type": "application/json" });
         res.end(JSON.stringify({ success: true, data: auteurs }));
     } catch (error) {
