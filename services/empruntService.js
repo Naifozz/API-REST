@@ -34,8 +34,7 @@ export async function serviceCreateEmprunt(res, empruntData) {
 
         const validation = validerEmprunt(empruntData);
         if (!validation.erreurs) {
-            res.writeHead(400, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ success: false, error: validation.erreurs }));
+            throw new Error(JSON.stringify(validation.erreurs));
         }
         const emprunt = await createEmprunt(dbEmprunt);
 
@@ -51,8 +50,7 @@ export async function serviceUpdateEmprunt(res, id, empruntData) {
         const dbEmprunt = empruntToDb(empruntData);
         const validation = validerEmprunt(empruntData);
         if (!validation.erreurs) {
-            res.writeHead(400, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ success: false, error: validation.erreurs }));
+            throw new Error(JSON.stringify(validation.erreurs));
         }
         const emprunt = await updateEmprunt(id, dbEmprunt);
         return { success: true, data: emprunt };
