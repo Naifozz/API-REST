@@ -9,6 +9,7 @@ import {
     livrePage,
 } from "../repositories/livreRepository.js";
 import { findAuteurById } from "../repositories/auteurRepository.js";
+import { livreToDb, validerLivre } from "../models/livreModels.js";
 
 // Fonction pour récupérer un livre par son ID
 export async function serviceGetLivreById(id) {
@@ -37,9 +38,16 @@ export async function serviceGetAll() {
 }
 
 // Fonction pour créer un livre
-export async function serviceCreateLivre(livreData) {
+export async function serviceCreateLivre(res, livreData) {
+    const dbLivre = livreToDb(livreData);
+    const validation = validerLivre(livreData);
+
+    if (!validation.estValide) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: false, error: validation.erreurs }));
+    }
     try {
-        const livre = await createLivre(livreData);
+        const livre = await createLivre(dbLivre);
         return livre;
     } catch (error) {
         throw new Error(error.message);
@@ -47,9 +55,15 @@ export async function serviceCreateLivre(livreData) {
 }
 
 // Fonction pour mettre à jour un livre
-export async function serviceUpdateLivre(id, livreData) {
+export async function serviceUpdateLivre(res, id, livreData) {
     try {
-        const livre = await updateLivre(id, livreData);
+        const dbLivre = livreToDb(livreData);
+        const validation = validerLivre(livreData);
+        if (!validation.estValide) {
+            res.writeHead(500, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ success: false, error: validation.erreurs }));
+        }
+        const livre = await updateLivre(id, dbLivre);
         const existe = await findLivreById(id);
         if (!existe) {
             throw new Error("Livre non trouvé");
