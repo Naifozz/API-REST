@@ -11,9 +11,11 @@ import { empruntValidation } from "../utils/validator.js";
 export async function getEmpruntById(id) {
     try {
         const emprunt = await serviceGetEmpruntById(id);
-        return emprunt;
+        res.writeHead(200, { "Content-type": "application/json" });
+        res.end(JSON.stringify({ success: true, data: emprunt }));
     } catch (error) {
-        throw new Error(`Erreur lors de la récupération de l'emprunt: ${error.message}`);
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: false, error: "Erreur Serveur" }));
     }
 }
 
@@ -48,16 +50,20 @@ export async function controllersCreateEmprunt(req, res) {
 }
 
 // Fonction pour mettre à jour un emprunt
-export async function controllersUpdateEmprunt(id, empruntData) {
+export async function controllersUpdateEmprunt(req, res, id) {
+    const empruntData = await parseRequestBody(req);
     try {
         const validation = await empruntValidation(empruntData);
         if (validation !== null) {
-            throw new Error(validation);
+            res.writeHead(400, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ success: false, error: validation }));
         }
         const emprunt = await serviceUpdateEmprunt(id, empruntData);
-        return emprunt;
+        res.writeHead(200, { "Content-type": "application/json" });
+        res.end(JSON.stringify("Données envoyées", emprunt));
     } catch (error) {
-        throw new Error(`Erreur lors de la mise à jour de l'emprunt: ${error.message}`);
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify("Erreur Serveur", error.message));
     }
 }
 
@@ -65,8 +71,10 @@ export async function controllersUpdateEmprunt(id, empruntData) {
 export async function controllersDeleteEmprunt(id) {
     try {
         const result = await serviceDeleteEmprunt(id);
-        return result;
+        res.writeHead(200, { "Content-type": "application/json" });
+        res.end(JSON.stringify(result));
     } catch (error) {
-        throw new Error(`Erreur lors de la suppression de l'emprunt: ${error.message}`);
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify("Erreur Serveur"));
     }
 }
