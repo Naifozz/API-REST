@@ -44,10 +44,10 @@ export async function deleteLivre(id) {
 }
 
 // Fonction pour créer un livre
-export async function createLivre(livreData) {
+export async function createLivre(dbLivre) {
     try {
         const db = await openDb();
-        const dbLivre = livreToDb(livreData);
+
         await db.run(
             "INSERT INTO LIVRE (Titre, ISBN, Annee_Publication, Nb_Pages, Editeur) VALUES (?, ?, ?, ?, ?)",
             [
@@ -58,7 +58,7 @@ export async function createLivre(livreData) {
                 dbLivre.Editeur,
             ]
         );
-        const newDbLivre = await db.get("SELECT * FROM LIVRE WHERE Titre = ?", [dbLivre.Titre]);
+        const newDbLivre = await db.get("SELECT * FROM LIVRE WHERE ISBN = ?", [dbLivre.ISBN]);
         if (!newDbLivre) {
             throw new Error("Erreur lors de la création du livre");
         }
@@ -84,7 +84,7 @@ export async function updateLivre(id, livreData) {
         if (!livre) {
             throw new Error("Erreur lors de la mise à jour du livre");
         }
-        return livre;
+        return dbToLivre(livre);
     } catch (error) {
         throw new Error(`Erreur lors de la mise à jour du livre: ${error.message}`);
     }

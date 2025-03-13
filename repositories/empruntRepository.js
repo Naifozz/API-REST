@@ -43,20 +43,20 @@ export async function deleteEmprunt(id) {
 }
 
 // Fonction pour créer un emprunt
-export async function createEmprunt(empruntData) {
+export async function createEmprunt(dbEmprunt) {
     try {
         const db = await openDb();
-        const { ID_Membre, ID_Exemplaire, Date_Retour_Effective } = empruntData;
         await db.run(
             "INSERT INTO EMPRUNT (ID_Membre, ID_Exemplaire, Date_Retour_Effective) VALUES (?, ?, ?)",
-            [ID_Membre, ID_Exemplaire, Date_Retour_Effective]
+            [dbEmprunt.ID_Membre, dbEmprunt.ID_Exemplaire, dbEmprunt.Date_Retour_Effective]
         );
-        const emprunt = await db.get(
-            "SELECT * FROM EMPRUNT WHERE ID_Membre = ? AND ID_Exemplaire = ? AND Date_Retour_Effective = ?",
-            [ID_Membre, ID_Exemplaire, Date_Retour_Effective]
-        );
+        const last_id = await db.get("SELECT last_Insert_Rowid() FROM EMPRUNT");
+
+        const emprunt = await db.get("SELECT * FROM EMPRUNT WHERE ID_Emprunt = ?", [
+            last_id["last_Insert_Rowid()"],
+        ]);
         if (!emprunt) {
-            throw new Error("Erreur lors de la création de l'emprunt");
+            throw new Error("Erreur lors de la création de l'emprunt : emprunt non trouvé");
         }
         return emprunt;
     } catch (error) {
@@ -65,13 +65,12 @@ export async function createEmprunt(empruntData) {
 }
 
 // Fonction pour mettre à jour un emprunt
-export async function updateEmprunt(id, empruntData) {
+export async function updateEmprunt(id, dbEmprunt) {
     try {
         const db = await openDb();
-        const { ID_Membre, ID_Exemplaire, Date_Retour_Effective } = empruntData;
         const result = await db.run(
             "UPDATE EMPRUNT SET ID_Membre = ?, ID_Exemplaire = ?, Date_Retour_Effective = ? WHERE ID_Emprunt = ?",
-            [ID_Membre, ID_Exemplaire, Date_Retour_Effective, id]
+            [dbEmprunt.ID_Membre, dbEmprunt.ID_Exemplaire, dbEmprunt.Date_Retour_Effective, id]
         );
         if (result.changes === 0) {
             throw new Error("Emprunt non trouvé ou aucune mise à jour effectuée");
