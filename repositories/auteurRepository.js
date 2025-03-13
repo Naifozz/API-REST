@@ -1,4 +1,5 @@
 import { openDb } from "../config/database.js";
+import { dbToAuteur } from "../models/auteurModels.js";
 
 // Fonction pour trouver un auteur par son ID
 export async function findAuteurById(id) {
@@ -43,32 +44,35 @@ export async function deleteAuteur(id) {
 }
 
 // Fonction pour créer un auteur
-export async function createAuteur(auteurData) {
+export async function createAuteur(dbAuteur) {
     try {
         const db = await openDb();
-        const { Nom, Prenom, Date_Naissance, ID_Pays } = auteurData;
         await db.run(
             "INSERT INTO AUTEUR (Nom, Prenom, Date_Naissance, ID_Pays) VALUES (?, ?, ?, ?)",
-            [Nom, Prenom, Date_Naissance, ID_Pays]
+            [dbAuteur.Nom, dbAuteur.Prenom, dbAuteur.Date_Naissance, dbAuteur.ID_Pays]
         );
-        const auteur = await db.get("SELECT * FROM AUTEUR WHERE Nom = ?", [Nom]);
+        const last_id = await db.get("SELECT last_Insert_Rowid() FROM AUTEUR");
+        const auteur = await db.get("SELECT * FROM AUTEUR WHERE ID_AUTEUR = ?", [
+            last_id["last_Insert_Rowid()"],
+        ]);
         if (!auteur) {
             throw new Error("Erreur lors de la création de l'auteur");
         }
-        return auteur;
+        const auteurDb = dbToAuteur(auteur);
+
+        return auteurDb;
     } catch (error) {
         throw new Error(`Erreur lors de la création de l'auteur: ${error.message}`);
     }
 }
 
 // Fonction pour mettre à jour un auteur
-export async function updateAuteur(id, auteurData) {
+export async function updateAuteur(id, dbAuteur) {
     try {
         const db = await openDb();
-        const { Nom, Prenom, Date_Naissance, ID_Pays } = auteurData;
         const result = await db.run(
             "UPDATE AUTEUR SET Nom = ?, Prenom = ?, Date_Naissance = ?, ID_Pays = ? WHERE ID_Auteur = ?",
-            [Nom, Prenom, Date_Naissance, ID_Pays, id]
+            [dbAuteur.Nom, dbAuteur.Prenom, dbAuteur.Date_Naissance, dbAuteur.ID_Pays, id]
         );
         if (result.changes === 0) {
             throw new Error("Auteur non trouvé ou aucune mise à jour effectuée");
@@ -77,7 +81,8 @@ export async function updateAuteur(id, auteurData) {
         if (!auteur) {
             throw new Error("Erreur lors de la mise à jour de l'auteur");
         }
-        return auteur;
+        const auteurDb = dbToAuteur(auteur);
+        return auteurDb;
     } catch (error) {
         throw new Error(`Erreur lors de la mise à jour de l'auteur: ${error.message}`);
     }

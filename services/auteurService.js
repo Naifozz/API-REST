@@ -5,6 +5,7 @@ import {
     updateAuteur,
     deleteAuteur,
 } from "../repositories/auteurRepository.js";
+import { auteurToDb, validerAuteur } from "../models/auteurModels.js";
 
 // Fonction pour récupérer un auteur par son ID
 export async function serviceGetAuteurById(id) {
@@ -27,9 +28,14 @@ export async function serviceGetAllAuteurs() {
 }
 
 // Fonction pour créer un auteur
-export async function serviceCreateAuteur(auteurData) {
+export async function serviceCreateAuteur(res, auteurData) {
     try {
-        const auteur = await createAuteur(auteurData);
+        const dbAuteur = auteurToDb(auteurData);
+        const validation = validerAuteur(auteurData);
+        if (!validation.estValide) {
+            throw new Error(JSON.stringify(validation.erreurs));
+        }
+        const auteur = await createAuteur(dbAuteur);
         return auteur;
     } catch (error) {
         throw new Error(`Erreur lors de la création de l'auteur: ${error.message}`);
@@ -39,7 +45,16 @@ export async function serviceCreateAuteur(auteurData) {
 // Fonction pour mettre à jour un auteur
 export async function serviceUpdateAuteur(id, auteurData) {
     try {
-        const auteur = await updateAuteur(id, auteurData);
+        const dbAuteur = auteurToDb(auteurData);
+        const validation = validerAuteur(auteurData);
+        if (!validation.estValide) {
+            throw new Error(JSON.stringify(validation.erreurs));
+        }
+        const existe = await findAuteurById(id);
+        if (!existe) {
+            throw new Error("Auteur non trouvé");
+        }
+        const auteur = await updateAuteur(id, dbAuteur);
         return auteur;
     } catch (error) {
         throw new Error(`Erreur lors de la mise à jour de l'auteur: ${error.message}`);

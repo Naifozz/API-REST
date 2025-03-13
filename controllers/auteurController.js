@@ -6,9 +6,10 @@ import {
     serviceDeleteAuteur,
 } from "../services/auteurService.js";
 import { auteurValidation } from "../utils/validator.js";
+import { parseRequestBody } from "../utils/httpHelper.js";
 
 // Fonction pour récupérer un auteur par son ID
-export async function getAuteurById(id) {
+export async function getAuteurById(req, res, id) {
     try {
         const auteur = await serviceGetAuteurById(id);
         if (auteur === null) {
@@ -24,7 +25,7 @@ export async function getAuteurById(id) {
 }
 
 // Fonction pour récupérer tous les auteurs
-export async function getAllAuteurs() {
+export async function getAllAuteurs(req, res, id) {
     try {
         const auteurs = await serviceGetAllAuteurs();
 
@@ -45,12 +46,7 @@ export async function getAllAuteurs() {
 export async function createAuteur(req, res) {
     const auteurData = await parseRequestBody(req);
     try {
-        const validation = await auteurValidation(auteurData);
-        if (validation !== null) {
-            res.writeHead(400, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ success: false, error: validation }));
-        }
-        const auteur = await serviceCreateAuteur(auteurData);
+        const auteur = await serviceCreateAuteur(res, auteurData);
         res.writeHead(200, { "Content-type": "application/json" });
         res.end(JSON.stringify(auteur));
     } catch (error) {
@@ -63,16 +59,6 @@ export async function createAuteur(req, res) {
 export async function updateAuteur(req, res, id) {
     const auteurData = await parseRequestBody(req);
     try {
-        const validation = await auteurValidation(auteurData);
-        if (validation !== null) {
-            res.writeHead(400, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ success: false, error: validation }));
-        }
-        const existe = await getAuteurById(id);
-        if (!existe) {
-            res.writeHead(404, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ success: false, error: "Auteur non trouvé" }));
-        }
         const auteur = await serviceUpdateAuteur(id, auteurData);
 
         res.writeHead(200, { "Content-type": "application/json" });
@@ -84,7 +70,7 @@ export async function updateAuteur(req, res, id) {
 }
 
 // Fonction pour supprimer un auteur
-export async function deleteAuteur(res, id) {
+export async function deleteAuteur(req, res, id) {
     try {
         const result = await serviceDeleteAuteur(id);
 
