@@ -8,9 +8,7 @@ import {
     serviceLivreAuteur,
     serviceLivrePage,
 } from "../services/livreService.js";
-import { livreValidation } from "../utils/validator.js";
 import { parseRequestBody } from "../utils/httpHelper.js";
-import { livreToDb, validerLivre } from "../models/livreModels.js";
 
 // Fonction pour récupérer un livre par son ID
 export async function getLivreById(req, res, id) {
@@ -42,15 +40,7 @@ export async function livreGetAll(req, res) {
 export async function controllersCreateLivre(req, res) {
     try {
         const livreData = await parseRequestBody(req);
-        const dbLivre = livreToDb(livreData);
-        const validation = validerLivre(livreData);
-
-        if (!validation.estValide) {
-            res.writeHead(400, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ success: false, error: validation.erreurs }));
-        }
-
-        const livre = await serviceCreateLivre(dbLivre);
+        const livre = await serviceCreateLivre(res, livreData);
 
         res.writeHead(200, { "Content-type": "application/json" });
         res.end(JSON.stringify({ success: true, data: livre }));
@@ -65,13 +55,7 @@ export async function controllersCreateLivre(req, res) {
 export async function controllersUpdateLivre(req, res, id) {
     const livreData = await parseRequestBody(req);
     try {
-        const dbLivre = livreToDb(livreData);
-        const validation = validerLivre(livreData);
-        if (!validation.estValide) {
-            res.writeHead(500, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ success: false, error: validation.erreurs }));
-        }
-        const livre = await serviceUpdateLivre(id, dbLivre);
+        const livre = await serviceUpdateLivre(res, id, livreData);
 
         res.writeHead(200, { "Content-type": "application/json" });
         res.end(JSON.stringify({ success: true, data: livre }));
