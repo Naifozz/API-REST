@@ -17,8 +17,8 @@ export const openDb = () => {
  * Copie la base de données initiale dans la base de données de test.
  */
 const copyDatabase = () => {
-    const sourceDbPath = path.resolve("./Data/database.db");
-    const testDbPath = path.resolve("./Data/database_test.db");
+    const sourceDbPath = path.resolve("./config/bibliotheque.db");
+    const testDbPath = path.resolve("./config/bibliotheque_test.db");
     copyFileSync(sourceDbPath, testDbPath); // Copie du fichier
 };
 
