@@ -66,12 +66,12 @@ export async function controllersUpdateLivre(req, res, id) {
 }
 
 // Fonction pour supprimer un livre
-export async function controllersDeleteLivre(id) {
+export async function controllersDeleteLivre(req, res, id) {
     try {
         const result = await serviceDeleteLivre(id);
 
         res.writeHead(200, { "Content-type": "application/json" });
-        res.end(JSON.stringify({ success: true, data: result }));
+        res.end(JSON.stringify({ success: true, data: result.message }));
     } catch (error) {
         res.writeHead(404, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ success: false, error: error.message }));
@@ -79,7 +79,7 @@ export async function controllersDeleteLivre(id) {
 }
 
 // Fonction pour récupérer les livres par catégorie
-export async function controllersCategorieLivre(res, id) {
+export async function controllersCategorieLivre(req, res, id) {
     try {
         const result = await serviceCategorieLivre(id);
 
@@ -92,7 +92,7 @@ export async function controllersCategorieLivre(res, id) {
 }
 
 // Fonction pour récupérer les livres par auteur
-export async function controllersLivreAuteur(res, id) {
+export async function controllersLivreAuteur(req, res, id) {
     try {
         const result = await serviceLivreAuteur(id);
 
@@ -105,7 +105,7 @@ export async function controllersLivreAuteur(res, id) {
 }
 
 // Fonction pour récupérer les livres par page
-export async function controllersLivrePage(offset, limit) {
+export async function controllersLivrePage(req, res, offset, limit) {
     try {
         const result = await serviceLivrePage(offset, limit);
 

@@ -22,7 +22,8 @@ export async function getAuteurById(req, res, id) {
 }
 
 // Fonction pour récupérer tous les auteurs
-export async function getAllAuteurs(req, res, id) {
+export async function getAllAuteurs(req, res) {
+    const auteurs = await serviceGetAllAuteurs();
     try {
         res.writeHead(200, { "Content-type": "application/json" });
         res.end(JSON.stringify({ success: true, data: auteurs }));

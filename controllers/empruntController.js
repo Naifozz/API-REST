@@ -8,9 +8,9 @@ import {
 import { parseRequestBody } from "../utils/httpHelper.js";
 
 // Fonction pour récupérer un emprunt par son ID
-export async function getEmpruntById(id) {
+export async function getEmpruntById(req, res, id) {
     try {
-        const emprunt = await serviceGetEmpruntById(req, res, id);
+        const emprunt = await serviceGetEmpruntById(id);
         res.writeHead(200, { "Content-type": "application/json" });
         res.end(JSON.stringify({ success: true, data: emprunt }));
     } catch (error) {
