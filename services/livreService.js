@@ -77,11 +77,12 @@ export async function serviceUpdateLivre(res, id, livreData) {
 // Fonction pour supprimer un livre
 export async function serviceDeleteLivre(id) {
     try {
-        const result = await deleteLivre(id);
         const existe = await findLivreById(id);
         if (!existe) {
             throw new Error("Livre non trouvé");
         }
+        const result = await deleteLivre(id);
+
         return result;
     } catch (error) {
         throw new Error(error.message);
