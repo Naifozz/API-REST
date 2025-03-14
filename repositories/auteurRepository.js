@@ -33,10 +33,22 @@ export async function getAllAuteurs() {
 export async function deleteAuteur(id) {
     try {
         const db = await openDb();
+        const exemplaire = await db.run(
+            `DELETE FROM EXEMPLAIRE WHERE ID_Livre IN 
+            (SELECT ID_Livre FROM ECRITURE WHERE ID_Auteur = ?)`,
+            [id]
+        );
         const result = await db.run("DELETE FROM AUTEUR WHERE ID_Auteur = ?", [id]);
         if (result.changes === 0) {
             throw new Error("Auteur non trouvé ou déjà supprimé");
         }
+
+        const livreAuteur = await db.run(
+            "DELETE FROM LIVRE WHERE ID_Livre IN (SELECT ID_Livre FROM ECRITURE WHERE ID_Auteur = ?)",
+            [id]
+        );
+        const ecriture = await db.run("DELETE FROM ECRITURE WHERE ID_Auteur = ?", [id]);
+
         return "Auteur supprimé avec succès";
     } catch (error) {
         throw new Error(`Erreur lors de la suppression de l'auteur: ${error.message}`);
