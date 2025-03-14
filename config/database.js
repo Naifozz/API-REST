@@ -36,7 +36,7 @@ async function initializeDatabase() {
             } else {
                 logger.info("Base de données initialisée avec succès.");
                 // Insérer des données après l'initialisation
-                //insertData(db); // (seulement pour l'initialisation)
+                // insertData(db); // (seulement pour l'initialisation)
             }
         });
     } catch (error) {
