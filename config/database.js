@@ -2,9 +2,24 @@ import sqlite3 from "sqlite3";
 import { readFile } from "fs/promises";
 import { open } from "sqlite";
 import { logger } from "../utils/logger.js";
+import path from "path";
 
 const dbFilePath = "./config/bibliotheque.db";
 const sqlFilePath = "./config/init.sql";
+const getDbPath = () => {
+    return process.env.NODE_ENV === "test"
+        ? path.resolve("./config/bibliotheque_test.db")
+        : path.resolve("./config/bibliotheque.db");
+};
+
+export async function openDb() {
+    const dbPath = getDbPath();
+
+    return open({
+        filename: dbPath,
+        driver: sqlite3.Database,
+    });
+}
 
 async function initializeDatabase() {
     try {
@@ -21,28 +36,11 @@ async function initializeDatabase() {
             } else {
                 logger.info("Base de données initialisée avec succès.");
                 // Insérer des données après l'initialisation
-                // insertData(db); // (seulement pour l'initialisation)
+                //insertData(db); // (seulement pour l'initialisation)
             }
         });
     } catch (error) {
         logger.error("Erreur lors de l'initialisation de la base de données:", error.message);
-    }
-}
-
-export async function openDb() {
-    try {
-        const db = await open({
-            filename: dbFilePath,
-            driver: sqlite3.Database,
-        });
-        // S'assurer que la table existe
-        await initializeDatabase();
-        logger.info("Base de données ouverte avec succès.");
-
-        return db;
-    } catch (error) {
-        logger.error("Failed to open database", error);
-        throw new Error("Failed to open database");
     }
 }
 
