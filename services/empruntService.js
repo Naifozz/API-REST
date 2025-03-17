@@ -5,6 +5,7 @@ import {
     updateEmprunt,
     deleteEmprunt,
 } from "../repositories/empruntRepository.js";
+import { verifierDispo, nonDispo } from "../repositories/exemplaireRepository.js";
 import { validerEmprunt, dbToEmprunt, empruntToDb } from "../models/empruntModels.js";
 
 // Fonction pour récupérer un emprunt par son ID
@@ -32,11 +33,18 @@ export async function serviceCreateEmprunt(res, empruntData) {
     try {
         const dbEmprunt = empruntToDb(empruntData);
 
+        const dispo = await verifierDispo(dbEmprunt.ID_Exemplaire);
+        if (!dispo) {
+            throw new Error("Exemplaire non disponible");
+        }
+
         const validation = validerEmprunt(empruntData);
         if (!validation.erreurs) {
             throw new Error(JSON.stringify(validation.erreurs));
         }
         const emprunt = await createEmprunt(dbEmprunt);
+
+        const enleverDispo = await nonDispo(dbEmprunt.ID_Exemplaire);
 
         return emprunt;
     } catch (error) {
