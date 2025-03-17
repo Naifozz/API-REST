@@ -1,3 +1,4 @@
+process.env.NODE_ENV = "test";
 import { openDb } from "../config/database.js";
 import { dbToLivre, livreToDb } from "../models/livreModels.js";
 
@@ -9,6 +10,8 @@ export async function findLivreById(id) {
         if (!livre) {
             throw new Error("Livre non trouvé");
         }
+        console.log(dbToLivre(livre));
+
         return dbToLivre(livre);
     } catch (error) {
         throw new Error(`Erreur lors de la récupération du livre: ${error.message}`);
