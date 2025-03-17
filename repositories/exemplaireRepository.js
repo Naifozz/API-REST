@@ -32,3 +32,15 @@ export async function nonDispo(idExemplaire) {
 
     return exemplaire;
 }
+
+export async function rendreDispo(id) {
+    const db = await openDb();
+    const exemplaire = await db.get("SELECT ID_Exemplaire FROM EMPRUNT WHERE ID_Emprunt = ?", [id]);
+
+    const exemplaireDispo = await db.run(
+        "UPDATE EXEMPLAIRE SET Disponibilite = 1 WHERE ID_Exemplaire = ?",
+        [exemplaire.ID_Exemplaire]
+    );
+
+    return exemplaireDispo;
+}
