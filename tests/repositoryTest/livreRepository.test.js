@@ -152,6 +152,7 @@ describe("Livre Repository Tests", () => {
             "SELECT * FROM CATEGORIE_LIVRE WHERE ID_Livre = ?",
             [createdLivre.ID_Livre]
         );
+
         expect(associatedCategories.length).toBe(0);
     });
 });
