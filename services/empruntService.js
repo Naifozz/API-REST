@@ -79,6 +79,7 @@ export async function serviceUpdateEmprunt(res, id, empruntData) {
 // Fonction pour supprimer un emprunt
 export async function serviceDeleteEmprunt(id) {
     try {
+        const rendreDisponible = await rendreDispo(id);
         const result = await deleteEmprunt(id);
         return result;
     } catch (error) {

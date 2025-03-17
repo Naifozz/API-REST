@@ -44,3 +44,16 @@ export async function rendreDispo(id) {
 
     return exemplaireDispo;
 }
+
+export async function deleteExemplaire(id) {
+    try {
+        const db = await openDb();
+        const result = await db.run("DELETE FROM EXEMPLAIRE WHERE ID_Exemplaire = ?", [id]);
+        if (result.changes === 0) {
+            throw new Error("Exemplaire non trouvé ou déjà supprimé");
+        }
+        return { success: true, message: "Exemplaire supprimé avec succès" };
+    } catch (error) {
+        throw new Error(`Erreur lors de la suppression de l'exemplaire: ${error.message}`);
+    }
+}

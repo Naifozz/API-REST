@@ -5,6 +5,7 @@ import {
     updateAuteur,
     deleteAuteur,
 } from "../repositories/auteurRepository.js";
+import { deleteExemplaire } from "../repositories/exemplaireRepository.js";
 import { auteurToDb, validerAuteur } from "../models/auteurModels.js";
 
 // Fonction pour récupérer un auteur par son ID
@@ -52,6 +53,7 @@ export async function serviceCreateAuteur(res, auteurData) {
 export async function serviceUpdateAuteur(id, auteurData) {
     try {
         const dbAuteur = auteurToDb(auteurData);
+
         const validation = validerAuteur(auteurData);
         if (!validation.estValide) {
             throw new Error(JSON.stringify(validation.erreurs));
@@ -70,6 +72,7 @@ export async function serviceUpdateAuteur(id, auteurData) {
 // Fonction pour supprimer un auteur
 export async function serviceDeleteAuteur(id) {
     try {
+        const exemplaire = await deleteExemplaire(id);
         const result = await deleteAuteur(id);
         return result;
     } catch (error) {
