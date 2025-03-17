@@ -111,6 +111,7 @@ describe("Emprunt Repository Tests", () => {
         const deletedEmprunt = await db.get("SELECT * FROM EMPRUNT WHERE ID_Emprunt = ?", [
             createdEmprunt.ID_Emprunt,
         ]);
+
         expect(deletedEmprunt).toBeUndefined();
     });
 });
