@@ -29,43 +29,129 @@ describe("Livre Repository Tests", () => {
     });
 
     it("should retrieve a book by ID", async () => {
-        const id = 1; // Remplacez par un ID valide dans votre base de données de test
-        const livre = await findLivreById(id);
-        expect(livre).toBeDefined();
-        expect(livre.Id).toBe(id);
-    });
-
-    it("should create a new book", async () => {
+        const db = await openDb();
+        // Créer un livre pour le test
         const newLivre = {
-            Titre: "Nouveau Livre",
+            Titre: "Livre Test",
             ISBN: "1234567890123",
             Annee_Publication: 2025,
             Nb_Pages: 300,
             Editeur: "Editeur Test",
         };
-        const livre = await createLivre(newLivre);
+        await createLivre(newLivre);
+        const createdLivre = await db.get("SELECT * FROM LIVRE WHERE ISBN = ?", [newLivre.ISBN]);
+
+        const livre = await findLivreById(createdLivre.ID_Livre);
         expect(livre).toBeDefined();
-        expect(livre.Titre).toBe(newLivre.Titre);
+        expect(livre.Id).toBe(createdLivre.ID_Livre);
+    });
+
+    it("should create a new book", async () => {
+        const newLivre = {
+            Titre: "Nouveau Livre",
+            ISBN: "1234567890126",
+            Annee_Publication: 2025,
+            Nb_Pages: 300,
+            Editeur: "Editeur Test",
+        };
+        await createLivre(newLivre);
+
+        // Vérifier que le livre a été créé
+        const db = await openDb();
+        const createdLivre = await db.get("SELECT * FROM LIVRE WHERE ISBN = ?", [newLivre.ISBN]);
+        expect(createdLivre).toBeDefined();
+        expect(createdLivre.Titre).toBe(newLivre.Titre);
+        expect(createdLivre.ISBN).toBe(newLivre.ISBN);
     });
 
     it("should update a book", async () => {
-        const id = 1; // Remplacez par un ID valide dans votre base de données de test
+        const db = await openDb();
+        // Créer un livre pour le test
+        const newLivre = {
+            Titre: "Livre Test",
+            ISBN: "1234567890128",
+            Annee_Publication: 2025,
+            Nb_Pages: 300,
+            Editeur: "Editeur Test",
+        };
+        await createLivre(newLivre);
+        const createdLivre = await db.get("SELECT * FROM LIVRE WHERE ISBN = ?", [newLivre.ISBN]);
+
         const updatedLivre = {
             Titre: "Livre Mis à Jour",
-            ISBN: "1234567890127",
+            ISBN: "1234567890148",
             Annee_Publication: 2025,
             Nb_Pages: 350,
             Editeur: "Editeur Mis à Jour",
         };
-        const livre = await updateLivre(id, updatedLivre);
+        await updateLivre(createdLivre.ID_Livre, updatedLivre);
+
+        // Vérifier que le livre a été mis à jour
+        const livre = await db.get("SELECT * FROM LIVRE WHERE ID_Livre = ?", [
+            createdLivre.ID_Livre,
+        ]);
         expect(livre).toBeDefined();
         expect(livre.Titre).toBe(updatedLivre.Titre);
+        expect(livre.ISBN).toBe(updatedLivre.ISBN);
     });
 
-    it("should delete a book", async () => {
-        const id = 1; // Remplacez par un ID valide dans votre base de données de test
-        const result = await deleteLivre(id);
-        expect(result.success).toBe(true);
-        expect(result.message).toBe("Livre supprimé avec succès");
+    it("should delete a book and its associated records", async () => {
+        const db = await openDb();
+
+        // Créer un nouveau livre
+        const newLivre = {
+            Titre: "Livre à Supprimer",
+            ISBN: "1234567890124",
+            Annee_Publication: 2025,
+            Nb_Pages: 300,
+            Editeur: "Editeur Test",
+        };
+        await createLivre(newLivre);
+
+        // Vérifier que le livre a été créé
+        const createdLivre = await db.get("SELECT * FROM LIVRE WHERE ISBN = ?", [newLivre.ISBN]);
+        expect(createdLivre).toBeDefined();
+
+        // Ajouter des enregistrements associés
+        await db.run("INSERT INTO EXEMPLAIRE (ID_Livre, Etat, Disponibilite) VALUES (?, ?, ?)", [
+            createdLivre.ID_Livre,
+            1,
+            1,
+        ]);
+        await db.run("INSERT INTO ECRITURE (ID_Auteur, ID_Livre, Role) VALUES (?, ?, ?)", [
+            1,
+            createdLivre.ID_Livre,
+            "Auteur",
+        ]);
+        await db.run("INSERT INTO CATEGORIE_LIVRE (ID_Categorie, ID_Livre) VALUES (?, ?)", [
+            1,
+            createdLivre.ID_Livre,
+        ]);
+
+        // Supprimer le livre
+        await deleteLivre(createdLivre.ID_Livre);
+
+        // Vérifier que le livre a été supprimé
+        const deletedLivre = await db.get("SELECT * FROM LIVRE WHERE ID_Livre = ?", [
+            createdLivre.ID_Livre,
+        ]);
+        expect(deletedLivre).toBeUndefined();
+
+        // Vérifier que les enregistrements associés ont été supprimés
+        const associatedExemplaires = await db.all("SELECT * FROM EXEMPLAIRE WHERE ID_Livre = ?", [
+            createdLivre.ID_Livre,
+        ]);
+        expect(associatedExemplaires.length).toBe(0);
+
+        const associatedEcritures = await db.all("SELECT * FROM ECRITURE WHERE ID_Livre = ?", [
+            createdLivre.ID_Livre,
+        ]);
+        expect(associatedEcritures.length).toBe(0);
+
+        const associatedCategories = await db.all(
+            "SELECT * FROM CATEGORIE_LIVRE WHERE ID_Livre = ?",
+            [createdLivre.ID_Livre]
+        );
+        expect(associatedCategories.length).toBe(0);
     });
 });
