@@ -1,3 +1,4 @@
+process.env.NODE_ENV = "test";
 import { openDb } from "../config/database.js";
 import { dbToLivre, livreToDb } from "../models/livreModels.js";
 
@@ -9,6 +10,8 @@ export async function findLivreById(id) {
         if (!livre) {
             throw new Error("Livre non trouvé");
         }
+        console.log(dbToLivre(livre));
+
         return dbToLivre(livre);
     } catch (error) {
         throw new Error(`Erreur lors de la récupération du livre: ${error.message}`);
@@ -33,19 +36,10 @@ export async function getAllLivres() {
 export async function deleteLivre(id) {
     try {
         const db = await openDb();
-
-        const emprunt = await db.run(
-            `DELETE FROM EMPRUNT WHERE ID_Exemplaire IN 
-            (SELECT ID_Exemplaire FROM EXEMPLAIRE WHERE ID_Livre = ?) `,
-            [id]
-        );
-        const exemplaire = await db.run("DELETE FROM EXEMPLAIRE WHERE ID_Livre = ?", [id]);
         const result = await db.run("DELETE FROM LIVRE WHERE ID_Livre = ?", [id]);
         if (result.changes === 0) {
             throw new Error("Livre non trouvé ou déjà supprimé");
         }
-        const categorie = await db.run("DELETE FROM CATEGORIE_LIVRE WHERE ID_Livre = ?", [id]);
-        const auteur = await db.run("DELETE FROM ECRITURE WHERE ID_Livre = ?", [id]);
         return { success: true, message: "Livre supprimé avec succès" };
     } catch (error) {
         throw new Error(`Erreur lors de la suppression du livre: ${error.message}`);

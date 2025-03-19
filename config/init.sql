@@ -25,8 +25,8 @@ CREATE TABLE IF NOT EXISTS `ECRITURE` (
   `ID_Livre` integer,
   `Role` varchar(255),
   PRIMARY KEY (`ID_Auteur`, `ID_Livre`),
-  FOREIGN KEY (`ID_Auteur`) REFERENCES `AUTEUR` (`ID_Auteur`),
-  FOREIGN KEY (`ID_Livre`) REFERENCES `LIVRE` (`ID_Livre`)
+  FOREIGN KEY (`ID_Auteur`) REFERENCES `AUTEUR` (`ID_Auteur`) ON DELETE CASCADE,
+  FOREIGN KEY (`ID_Livre`) REFERENCES `LIVRE` (`ID_Livre`) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS `MEMBRE` (
@@ -45,8 +45,8 @@ CREATE TABLE IF NOT EXISTS `EMPRUNT` (
   `Date_Emprunt` date DEFAULT (CURRENT_DATE),
   `Date_Retour_Prevue` date,
   `Date_Retour_Effective` date,
-  FOREIGN KEY (`ID_Membre`) REFERENCES `MEMBRE` (`ID_Membre`),
-  FOREIGN KEY (`ID_Exemplaire`) REFERENCES `EXEMPLAIRE` (`ID_Exemplaire`)
+  FOREIGN KEY (`ID_Membre`) REFERENCES `MEMBRE` (`ID_Membre`) ON DELETE CASCADE,
+  FOREIGN KEY (`ID_Exemplaire`) REFERENCES `EXEMPLAIRE` (`ID_Exemplaire`) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS `CATEGORIE` (
@@ -59,8 +59,8 @@ CREATE TABLE IF NOT EXISTS `CATEGORIE_LIVRE` (
   `ID_Categorie` integer,
   `ID_Livre` integer,
   PRIMARY KEY (`ID_Categorie`, `ID_Livre`),
-  FOREIGN KEY (`ID_Categorie`) REFERENCES `CATEGORIE` (`ID_Categorie`),
-  FOREIGN KEY (`ID_Livre`) REFERENCES `LIVRE` (`ID_Livre`)
+  FOREIGN KEY (`ID_Categorie`) REFERENCES `CATEGORIE` (`ID_Categorie`) ON DELETE CASCADE,
+  FOREIGN KEY (`ID_Livre`) REFERENCES `LIVRE` (`ID_Livre`) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS `EXEMPLAIRE` (
@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS `EXEMPLAIRE` (
   `Etat` integer NOT NULL,
   `Disponibilite` boolean NOT NULL DEFAULT 0,
   `Date_Acquisition` date,
-  FOREIGN KEY (`ID_Livre`) REFERENCES `LIVRE` (`ID_Livre`)
+  FOREIGN KEY (`ID_Livre`) REFERENCES `LIVRE` (`ID_Livre`) ON DELETE CASCADE
 );
 
 CREATE TRIGGER IF NOT EXISTS set_date_retour_prevue

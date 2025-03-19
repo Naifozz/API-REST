@@ -3,12 +3,12 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { resetDbTest } from "../../config/databaseTest.js";
 import { openDb } from "../../config/database.js";
 import {
-    findLivreById,
-    getAllLivres,
-    createLivre,
-    updateLivre,
-    deleteLivre,
-} from "../../repositories/livreRepository.js";
+    serviceGetLivreById,
+    serviceGetAllLivres,
+    serviceCreateLivre,
+    serviceUpdateLivre,
+    serviceDeleteLivre,
+} from "../../services/livreService.js";
 
 beforeAll(async () => {
     // Réinitialiser la base de données de test avant d'exécuter les tests
@@ -21,9 +21,9 @@ afterAll(async () => {
     await db.close();
 });
 
-describe("Livre Repository Tests", () => {
+describe("Livre Service Tests", () => {
     it("should retrieve all books", async () => {
-        const livres = await getAllLivres();
+        const livres = await serviceGetAllLivres();
         expect(livres).toBeInstanceOf(Array);
         expect(livres.length).toBeGreaterThan(0);
     });
@@ -38,12 +38,21 @@ describe("Livre Repository Tests", () => {
             Nb_Pages: 300,
             Editeur: "Editeur Test",
         };
-        await createLivre(newLivre);
+        await db.run(
+            "INSERT INTO LIVRE (Titre, ISBN, Annee_Publication, Nb_Pages, Editeur) VALUES (?, ?, ?, ?, ?)",
+            [
+                newLivre.Titre,
+                newLivre.ISBN,
+                newLivre.Annee_Publication,
+                newLivre.Nb_Pages,
+                newLivre.Editeur,
+            ]
+        );
         const createdLivre = await db.get("SELECT * FROM LIVRE WHERE ISBN = ?", [newLivre.ISBN]);
 
-        const livre = await findLivreById(createdLivre.ID_Livre);
+        const livre = await serviceGetLivreById(createdLivre.ID_Livre);
         expect(livre).toBeDefined();
-        expect(livre.Id).toBe(createdLivre.ID_Livre);
+        expect(livre.ID_Livre).toBe(createdLivre.ID_Livre);
     });
 
     it("should create a new book", async () => {
@@ -54,14 +63,10 @@ describe("Livre Repository Tests", () => {
             Nb_Pages: 300,
             Editeur: "Editeur Test",
         };
-        await createLivre(newLivre);
-
-        // Vérifier que le livre a été créé
-        const db = await openDb();
-        const createdLivre = await db.get("SELECT * FROM LIVRE WHERE ISBN = ?", [newLivre.ISBN]);
-        expect(createdLivre).toBeDefined();
-        expect(createdLivre.Titre).toBe(newLivre.Titre);
-        expect(createdLivre.ISBN).toBe(newLivre.ISBN);
+        const livre = await serviceCreateLivre(newLivre);
+        expect(livre).toBeDefined();
+        expect(livre.Titre).toBe(newLivre.Titre);
+        expect(livre.ISBN).toBe(newLivre.ISBN);
     });
 
     it("should update a book", async () => {
@@ -74,7 +79,16 @@ describe("Livre Repository Tests", () => {
             Nb_Pages: 300,
             Editeur: "Editeur Test",
         };
-        await createLivre(newLivre);
+        await db.run(
+            "INSERT INTO LIVRE (Titre, ISBN, Annee_Publication, Nb_Pages, Editeur) VALUES (?, ?, ?, ?, ?)",
+            [
+                newLivre.Titre,
+                newLivre.ISBN,
+                newLivre.Annee_Publication,
+                newLivre.Nb_Pages,
+                newLivre.Editeur,
+            ]
+        );
         const createdLivre = await db.get("SELECT * FROM LIVRE WHERE ISBN = ?", [newLivre.ISBN]);
 
         const updatedLivre = {
@@ -84,12 +98,9 @@ describe("Livre Repository Tests", () => {
             Nb_Pages: 350,
             Editeur: "Editeur Mis à Jour",
         };
-        await updateLivre(createdLivre.ID_Livre, updatedLivre);
+        const livre = await serviceUpdateLivre(createdLivre.ID_Livre, updatedLivre);
 
         // Vérifier que le livre a été mis à jour
-        const livre = await db.get("SELECT * FROM LIVRE WHERE ID_Livre = ?", [
-            createdLivre.ID_Livre,
-        ]);
         expect(livre).toBeDefined();
         expect(livre.Titre).toBe(updatedLivre.Titre);
         expect(livre.ISBN).toBe(updatedLivre.ISBN);
@@ -106,11 +117,17 @@ describe("Livre Repository Tests", () => {
             Nb_Pages: 300,
             Editeur: "Editeur Test",
         };
-        await createLivre(newLivre);
-
-        // Vérifier que le livre a été créé
+        await db.run(
+            "INSERT INTO LIVRE (Titre, ISBN, Annee_Publication, Nb_Pages, Editeur) VALUES (?, ?, ?, ?, ?)",
+            [
+                newLivre.Titre,
+                newLivre.ISBN,
+                newLivre.Annee_Publication,
+                newLivre.Nb_Pages,
+                newLivre.Editeur,
+            ]
+        );
         const createdLivre = await db.get("SELECT * FROM LIVRE WHERE ISBN = ?", [newLivre.ISBN]);
-        expect(createdLivre).toBeDefined();
 
         // Ajouter des enregistrements associés
         await db.run("INSERT INTO EXEMPLAIRE (ID_Livre, Etat, Disponibilite) VALUES (?, ?, ?)", [
@@ -129,7 +146,7 @@ describe("Livre Repository Tests", () => {
         ]);
 
         // Supprimer le livre
-        await deleteLivre(createdLivre.ID_Livre);
+        await serviceDeleteLivre(createdLivre.ID_Livre);
 
         // Vérifier que le livre a été supprimé
         const deletedLivre = await db.get("SELECT * FROM LIVRE WHERE ID_Livre = ?", [
@@ -152,7 +169,6 @@ describe("Livre Repository Tests", () => {
             "SELECT * FROM CATEGORIE_LIVRE WHERE ID_Livre = ?",
             [createdLivre.ID_Livre]
         );
-
         expect(associatedCategories.length).toBe(0);
     });
 });

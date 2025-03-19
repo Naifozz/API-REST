@@ -46,22 +46,12 @@ export async function deleteEmprunt(id) {
 export async function createEmprunt(dbEmprunt) {
     try {
         const db = await openDb();
-        const disponible = await db.get(
-            "SELECT * FROM EXEMPLAIRE WHERE ID_Exemplaire = ? AND Disponibilite = 1",
-            [dbEmprunt.ID_Exemplaire]
-        );
-        if (!disponible) {
-            throw new Error("Exemplaire non disponible");
-        }
+
         await db.run(
             "INSERT INTO EMPRUNT (ID_Membre, ID_Exemplaire, Date_Retour_Effective) VALUES (?, ?, ?)",
             [dbEmprunt.ID_Membre, dbEmprunt.ID_Exemplaire, dbEmprunt.Date_Retour_Effective]
         );
         const last_id = await db.get("SELECT last_Insert_Rowid() FROM EMPRUNT");
-        const exemplaireDispo = await db.run(
-            "UPDATE EXEMPLAIRE SET Disponibilite = 0 WHERE ID_Exemplaire = ?",
-            [dbEmprunt.ID_Exemplaire]
-        );
 
         const emprunt = await db.get("SELECT * FROM EMPRUNT WHERE ID_Emprunt = ?", [
             last_id["last_Insert_Rowid()"],

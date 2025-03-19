@@ -15,10 +15,13 @@ const getDbPath = () => {
 export async function openDb() {
     const dbPath = getDbPath();
 
-    return open({
+    const db = await open({
         filename: dbPath,
         driver: sqlite3.Database,
     });
+
+    await db.exec("PRAGMA foreign_keys = ON;");
+    return db;
 }
 
 async function initializeDatabase() {
@@ -36,7 +39,7 @@ async function initializeDatabase() {
             } else {
                 logger.info("Base de données initialisée avec succès.");
                 // Insérer des données après l'initialisation
-                // insertData(db); // (seulement pour l'initialisation)
+                //insertData(db); // (seulement pour l'initialisation)
             }
         });
     } catch (error) {
